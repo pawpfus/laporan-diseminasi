@@ -113,17 +113,6 @@
   input:focus,textarea:focus,select:focus{outline:none;border-color:var(--moss);box-shadow:0 0 0 3px rgba(1,68,33,.1)}
   textarea{resize:vertical;min-height:64px;line-height:1.5}
   .hint{font-size:11.5px;color:var(--ink-3)}
-  /* Autofill banner */
-  .auto-cta{display:flex;align-items:center;gap:14px;
-    background:linear-gradient(135deg,rgba(34,192,125,.14),rgba(21,163,106,.05));
-    border:1px solid rgba(34,192,125,.38);border-radius:12px;padding:13px 15px;margin-bottom:16px}
-  .auto-cta .auto-ic{width:40px;height:40px;flex:0 0 auto;border-radius:10px;display:grid;place-items:center;
-    background:linear-gradient(180deg,#22c07d,#15a36a);color:#04210f;box-shadow:0 3px 10px rgba(21,163,106,.3)}
-  .auto-cta .auto-ic svg{width:21px;height:21px}
-  .auto-cta .auto-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-  .auto-cta .auto-txt strong{font-size:13.5px;font-weight:700}
-  .auto-cta .auto-txt span{font-size:12px;color:var(--ink-3)}
-  .auto-cta .btn-sm{flex:0 0 auto}
   /* pill input */
   .coord-pill{display:flex;align-items:center;gap:7px;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:4px 12px;transition:border .15s,box-shadow .15s}
   .coord-pill:focus-within{border-color:var(--moss);box-shadow:0 0 0 3px rgba(1,68,33,.1)}
@@ -255,11 +244,6 @@
       <span class="step">LANGKAH 1</span>
     </div>
     <div class="card-body">
-      <div class="auto-cta">
-        <span class="auto-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>
-        <span class="auto-txt"><strong>Isi otomatis data tetap</strong><span>Muat kembali data identitas, dasar pelaksanaan, dan pengesahan default.</span></span>
-        <button class="btn btn-emerald btn-sm" onclick="applyDefaults()">Isi Otomatis</button>
-      </div>
       <div class="grid">
         <div class="field"><label>Nama Penyuluh</label><input type="text" id="nama" placeholder="Nama lengkap"></div>
         <div class="field"><label>NIP</label><input type="text" id="nip" placeholder="NIP"></div>
@@ -383,10 +367,6 @@ function load(){
   const haveAny=Object.keys(state.id).length;
   ID_FIELDS.forEach(k=>setVal(k,haveAny?(state.id[k]??''):DEFAULTS[k]));
   render();renderSig();
-}
-function applyDefaults(){
-  ID_FIELDS.forEach(k=>setVal(k,DEFAULTS[k]));
-  save();toast('Data default dimuat');
 }
 let saveTimer=null;
 function flashSave(){
@@ -526,14 +506,22 @@ body{font-family:'Instrument Sans',sans-serif;color:#000}
 @page{size:A4;margin:0}
 .sheet{width:794px;min-height:1123px;padding:49px 42px 60px;position:relative;page-break-after:always;overflow:hidden}
 .sheet:last-child{page-break-after:auto}
-.banner{text-align:center;padding:2px 10px 12px;margin-bottom:10px}
+.banner{text-align:center;padding:2px 10px 9px;margin-bottom:14px;border-bottom:1.4px solid #000}
 .banner .t1{font-weight:700;font-size:14.5px;letter-spacing:.2px;line-height:1.3}
-.banner img{width:44px;height:44px;object-fit:contain;margin:6px auto 0;display:block}
-.p-id{display:flex;font-size:12.5px;line-height:1.55;font-weight:400}
-.p-id .k{width:150px;flex:0 0 150px}
-.p-id .c{width:12px;flex:0 0 12px}
-.p-id.cont .v{padding-left:150px}
-.sec-label{font-weight:700;font-size:12.5px;margin-top:8px}
+.num-head{display:flex;font-size:12.5px;line-height:1.65;font-weight:400;margin-top:9px}
+.num-head .pfx{width:22px;flex:0 0 22px}
+.num-head .lbl{flex:1}
+.num-main{display:flex;font-size:12.5px;line-height:1.65;font-weight:400}
+.num-main .pfx{width:22px;flex:0 0 22px}
+.num-main .lbl{width:180px;flex:0 0 180px}
+.num-main .col{width:12px;flex:0 0 12px}
+.num-main .val{flex:1}
+.num-sub{display:flex;font-size:12.5px;line-height:1.65;font-weight:400;margin-left:24px}
+.num-sub .pfx{width:22px;flex:0 0 22px}
+.num-sub .lbl{width:156px;flex:0 0 156px}
+.num-sub .col{width:12px;flex:0 0 12px}
+.num-sub .val{flex:1}
+.num-cont{font-size:12.5px;line-height:1.65;padding-left:214px}
 .foto-box{text-align:center;margin:14px 0}
 .foto-box img{max-width:420px;max-height:280px;object-fit:contain;border:0.5px solid #999;border-radius:4px}
 .sig-date{text-align:right;font-size:12.5px;margin-top:18px}
@@ -544,29 +532,32 @@ body{font-family:'Instrument Sans',sans-serif;color:#000}
 .sig-name{font-weight:700;margin-top:2px}
 .foot{position:absolute;left:42px;right:42px;bottom:26px;text-align:right;font-size:11px}
 `;
-function pIdRow(k,v,cont){return `<div class="p-id${cont?' cont':''}">${cont?'':`<span class="k">${esc(k)}</span><span class="c">:</span>`}<span class="v">${esc(v||'')}</span></div>`;}
+function numHead(n,label){return `<div class="num-head"><span class="pfx">${n}.</span><span class="lbl">${esc(label)}</span></div>`;}
+function numMain(n,label,val){return `<div class="num-main"><span class="pfx">${n}.</span><span class="lbl">${esc(label)}</span><span class="col">:</span><span class="val">${esc(val||'')}</span></div>`;}
+function numSub(letter,label,val){return `<div class="num-sub"><span class="pfx">${letter}.</span><span class="lbl">${esc(label)}</span><span class="col">:</span><span class="val">${esc(val||'')}</span></div>`;}
+function numCont(val){return `<div class="num-cont">${esc(val||'')}</div>`;}
 function pdfEntryHTML(r,idx){
   const id=state.id;
   return `<div class="sheet">
-    <div class="banner"><div class="t1">LAPORAN&nbsp;&nbsp;KEGIATAN DISEMINASI INFORMASI PERTANIAN</div><img src="kementan-logo.png"></div>
-    <div class="sec-label">Penyuluh Pertanian</div>
-    ${pIdRow('Nama dan NIP',(id.nama||'')+' / '+(id.nip||''))}
-    ${pIdRow('Pangkat/Golongan',id.pangkat)}
-    ${pIdRow('Jabatan',id.jabatan)}
-    ${pIdRow('Unit Kerja',id.unit)}
-    ${pIdRow('','Kabupaten '+(id.kabupaten||''),true)}
-    ${pIdRow('Dasar Pelaksanaan',id.dasar1)}
-    ${pIdRow('',id.dasar2,true)}
-    ${pIdRow('Materi Diseminasi',r.materi)}
-    <div class="sec-label" style="margin-top:10px">Pelaksanaan Kegiatan</div>
-    ${pIdRow('Waktu Pelaksanaan',fmtTanggalHari(r.tanggal))}
-    ${pIdRow('Tempat/Lokasi',r.tempat)}
-    ${pIdRow('Metode',r.metode)}
-    ${pIdRow('Peserta',r.peserta)}
-    ${pIdRow('Hasil Kegiatan','Masalah :')}
-    ${pIdRow('',r.masalah,true)}
-    ${pIdRow('','Solusi :',true)}
-    ${pIdRow('',r.solusi,true)}
+    <div class="banner"><div class="t1">LAPORAN&nbsp;&nbsp;KEGIATAN DISEMINASI INFORMASI PERTANIAN</div></div>
+    ${numHead(1,'Penyuluh Pertanian')}
+    ${numSub('a','Nama dan NIP',(id.nama||'')+' / '+(id.nip||''))}
+    ${numSub('b','Pangkat/Golongan',id.pangkat)}
+    ${numSub('c','Jabatan',id.jabatan)}
+    ${numSub('d','Unit Kerja',id.unit)}
+    ${numCont('Kabupaten '+(id.kabupaten||''))}
+    ${numMain(2,'Dasar Pelaksanaan',id.dasar1)}
+    ${numCont(id.dasar2)}
+    ${numMain(3,'Materi Diseminasi',r.materi)}
+    ${numHead(4,'Pelaksanaan Kegiatan')}
+    ${numSub('a','Waktu Pelaksanaan',fmtTanggalHari(r.tanggal))}
+    ${numSub('b','Tempat/Lokasi',r.tempat)}
+    ${numSub('c','Metode',r.metode)}
+    ${numSub('d','Peserta',r.peserta)}
+    ${numMain(5,'Hasil Kegiatan','Masalah :')}
+    ${numCont(r.masalah)}
+    ${numCont('Solusi :')}
+    ${numCont(r.solusi)}
     ${r.foto?`<div class="foto-box"><img src="${r.foto}"></div>`:''}
     <div class="sig-date">${esc(id.kecamatan||'')}, ${esc(fmtTanggalOnly(r.tanggal))}</div>
     <div class="sig-row2"><div class="sig-col">Mengetahui,</div><div class="sig-col"></div></div>
@@ -609,7 +600,6 @@ async function downloadPDF(){
    WORD EXPORT (docx.js)
    ============================================================ */
 function dataUrlToU8(d){const b=atob(d.split(',')[1]);const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
-async function fileBytes(url){const res=await fetch(url);const buf=await res.arrayBuffer();return new Uint8Array(buf);}
 async function imgRunFromDataUrl(dataUrl,maxW,maxH){
   const D=window.docx;const dim=await dimsOf(dataUrl);
   const ratio=Math.min(maxW/dim.w,maxH/dim.h,1);
@@ -623,50 +613,61 @@ async function exportWord(){
   save();toast('Menyusun file Word…');
   try{
     const D=window.docx;
-    const {Document,Packer,Paragraph,TextRun,AlignmentType,TabStopType,ImageRun}=D;
+    const {Document,Packer,Paragraph,TextRun,AlignmentType,TabStopType,BorderStyle,LevelFormat}=D;
     const FONT='Calibri';
     const txt=(t,o={})=>new TextRun(Object.assign({text:t,font:FONT,size:22},o));
     const p=(runs,o={})=>new Paragraph(Object.assign({children:Array.isArray(runs)?runs:[runs]},o));
     const id=state.id;
 
     // tab positions (twips) mirroring the reference document's own tab stops
-    const TAB1=2977;   // label column -> value column
+    const TAB1=2977;   // label column -> value column (same for numbered & lettered lines)
     const TAB2=5040;   // left signature column -> right signature column
+    const NUM_IND=260,SUB_IND=680; // numbering indents (twips)
 
-    /* key : value line, aligned via a single tab stop (no table) */
-    const kv=(label,value)=>p([txt(label),txt('\t:  '+(value||''))],{tabStops:[{type:TabStopType.LEFT,position:TAB1}]});
-    /* continuation line, indented to the value column, no label */
+    /* numbered heading line, e.g. "1. Penyuluh Pertanian" (no colon/value) */
+    const numHead=(ref,label)=>p([txt(label)],{numbering:{reference:ref,level:0}});
+    /* numbered "label : value" line, aligned via a single tab stop (no table) */
+    const numKV=(ref,label,value)=>p([txt(label),txt('\t:  '+(value||''))],{numbering:{reference:ref,level:0},tabStops:[{type:TabStopType.LEFT,position:TAB1}]});
+    /* continuation line, indented to the value column, no number/label */
     const cont=(value)=>p([txt(value||'')],{indent:{left:TAB1}});
     /* two values on one line separated by a tab (used for the signature block) */
     const twoCol=(runsLeft,runsRight)=>p([...runsLeft,txt('\t'),...runsRight],{tabStops:[{type:TabStopType.LEFT,position:TAB2}]});
 
-    let logoBytes=null;
-    try{logoBytes=await fileBytes('kementan-logo.png');}catch(e){}
-    const logoImg=(w,h)=>logoBytes?new ImageRun({data:logoBytes,transformation:{width:w,height:h},type:'png'}):null;
+    // each entry gets its own numbering instances so 1-5 / a-d restart per report page
+    const numberingConfig=[];
+    state.rows.forEach((r,i)=>{
+      numberingConfig.push(
+        {reference:'main'+i,levels:[{level:0,format:LevelFormat.DECIMAL,text:'%1.',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:NUM_IND,hanging:NUM_IND}}}}]},
+        {reference:'subA'+i,levels:[{level:0,format:LevelFormat.LOWER_LETTER,text:'%1.',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:SUB_IND,hanging:NUM_IND}}}}]},
+        {reference:'subB'+i,levels:[{level:0,format:LevelFormat.LOWER_LETTER,text:'%1.',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:SUB_IND,hanging:NUM_IND}}}}]}
+      );
+    });
 
     const entryPages=[];
     for(let i=0;i<state.rows.length;i++){
       const r=state.rows[i];
       const kids=[];
-      kids.push(p([txt('LAPORAN  KEGIATAN DISEMINASI INFORMASI PERTANIAN',{bold:true,size:24})],{alignment:AlignmentType.CENTER,pageBreakBefore:i>0,spacing:{after:80}}));
-      if(logoImg(46,46))kids.push(p([logoImg(46,46)],{alignment:AlignmentType.CENTER,spacing:{after:160}}));
+      kids.push(p([txt('LAPORAN  KEGIATAN DISEMINASI INFORMASI PERTANIAN',{bold:true,size:24})],{
+        alignment:AlignmentType.CENTER,pageBreakBefore:i>0,spacing:{after:220},
+        border:{bottom:{style:BorderStyle.SINGLE,size:8,color:'000000',space:4}}
+      }));
 
-      kids.push(p([txt('Penyuluh Pertanian',{bold:true})],{spacing:{after:40}}));
-      kids.push(kv('Nama dan NIP',(id.nama||'')+' / '+(id.nip||'')));
-      kids.push(kv('Pangkat/Golongan',id.pangkat||''));
-      kids.push(kv('Jabatan',id.jabatan||''));
-      kids.push(kv('Unit Kerja',id.unit||''));
+      kids.push(numHead('main'+i,'Penyuluh Pertanian'));
+      kids.push(numKV('subA'+i,'Nama dan NIP',(id.nama||'')+' / '+(id.nip||'')));
+      kids.push(numKV('subA'+i,'Pangkat/Golongan',id.pangkat||''));
+      kids.push(numKV('subA'+i,'Jabatan',id.jabatan||''));
+      kids.push(numKV('subA'+i,'Unit Kerja',id.unit||''));
       kids.push(cont('Kabupaten '+(id.kabupaten||'')));
-      kids.push(kv('Dasar Pelaksanaan',id.dasar1||''));
+      kids.push(numKV('main'+i,'Dasar Pelaksanaan',id.dasar1||''));
       kids.push(cont(id.dasar2||''));
-      kids.push(kv('Materi Diseminasi',r.materi||''));
+      kids.push(numKV('main'+i,'Materi Diseminasi',r.materi||''));
 
-      kids.push(p([txt('Pelaksanaan Kegiatan',{bold:true})],{spacing:{before:120,after:40}}));
-      kids.push(kv('Waktu Pelaksanaan',fmtTanggalHari(r.tanggal)));
-      kids.push(kv('Tempat/Lokasi',r.tempat||''));
-      kids.push(kv('Metode',r.metode||''));
-      kids.push(kv('Peserta',r.peserta||''));
-      kids.push(kv('Hasil Kegiatan','Masalah :'));
+      kids.push(numHead('main'+i,'Pelaksanaan Kegiatan'));
+      kids.push(numKV('subB'+i,'Waktu Pelaksanaan',fmtTanggalHari(r.tanggal)));
+      kids.push(numKV('subB'+i,'Tempat/Lokasi',r.tempat||''));
+      kids.push(numKV('subB'+i,'Metode',r.metode||''));
+      kids.push(numKV('subB'+i,'Peserta',r.peserta||''));
+      kids.push(numKV('main'+i,'Hasil Kegiatan','Masalah :'));
       kids.push(cont(r.masalah||''));
       kids.push(cont('Solusi :'));
       kids.push(cont(r.solusi||''));
@@ -691,6 +692,7 @@ async function exportWord(){
     }
 
     const doc=new Document({
+      numbering:{config:numberingConfig},
       sections:[{
         properties:{page:{margin:{top:900,bottom:900,left:1100,right:1100}}},
         children:entryPages
@@ -732,7 +734,6 @@ document.getElementById('unit').addEventListener('blur',function(){
 window.addRow=addRow;window.delRow=delRow;window.clearRows=clearRows;window.field=field;
 window.pickFoto=pickFoto;window.removeFoto=removeFoto;
 window.pickSig=pickSig;window.removeSig=removeSig;
-window.applyDefaults=applyDefaults;
 window.exportWord=exportWord;window.downloadPDF=downloadPDF;window.resetAll=resetAll;window.toggleTheme=toggleTheme;
 load();
 

@@ -1,10 +1,9 @@
-const CACHE_NAME = 'laporan-diseminasi-v2';
+const CACHE_NAME = 'laporan-diseminasi-v3';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './logo.png',
-  './kementan-logo.png',
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
