@@ -529,9 +529,10 @@ body{font-family:'Times New Roman',Times,serif;color:#000}
 .num-gap{margin-top:20px}
 .foto-box{text-align:center;margin:14px 0}
 .foto-box img{max-width:420px;max-height:280px;object-fit:contain;border:0.5px solid #999;border-radius:4px}
-.sig-date{text-align:right;font-size:12.5px;margin-top:34px;color:#000}
-.sig-row2{display:flex;font-size:12.5px;margin-top:2px}
+.sig-row2{display:flex;font-size:12.5px;margin-top:2px;color:#000}
+.sig-date-row{margin-top:34px}
 .sig-col{width:50%;vertical-align:top}
+.sig-img-row{margin-top:40px}
 .sig-img{height:70px;display:flex;align-items:center}
 .sig-img img{max-height:65px;max-width:180px;object-fit:contain}
 .sig-name{font-weight:700;margin-top:2px}
@@ -540,7 +541,7 @@ body{font-family:'Times New Roman',Times,serif;color:#000}
 function numHead(n,label,gap){return `<div class="num-head${gap?' num-gap':''}"><span class="pfx">${n}.</span><span class="lbl">${esc(label)}</span></div>`;}
 function numMain(n,label,val,gap){return `<div class="num-main${gap?' num-gap':''}"><span class="pfx">${n}.</span><span class="lbl">${esc(label)}</span><span class="col">:</span><span class="val">${esc(val||'')}</span></div>`;}
 function numSub(letter,label,val){return `<div class="num-sub"><span class="pfx">${letter}.</span><span class="lbl">${esc(label)}</span><span class="col">:</span><span class="val">${esc(val||'')}</span></div>`;}
-function numCont(val){return `<div class="num-cont">${esc(val||'')}</div>`;}
+function numCont(val,gap){return `<div class="num-cont${gap?' num-gap':''}">${esc(val||'')}</div>`;}
 function pdfEntryHTML(r,idx){
   const id=state.id;
   return `<div class="sheet">
@@ -561,13 +562,13 @@ function pdfEntryHTML(r,idx){
     ${numSub('d','Peserta',r.peserta)}
     ${numMain(5,'Hasil Kegiatan','Masalah :',true)}
     ${numCont(r.masalah)}
-    ${numCont('Solusi :')}
+    ${numCont('Solusi :',true)}
     ${numCont(r.solusi)}
     ${r.foto?`<div class="foto-box"><img src="${r.foto}"></div>`:''}
-    <div class="sig-date">${esc(id.kecamatan||'')}, ${esc(fmtTanggalOnly(r.tanggal))}</div>
+    <div class="sig-row2 sig-date-row"><div class="sig-col"></div><div class="sig-col">${esc(id.kecamatan||'')}, ${esc(fmtTanggalOnly(r.tanggal))}</div></div>
     <div class="sig-row2"><div class="sig-col">Mengetahui,</div><div class="sig-col"></div></div>
     <div class="sig-row2"><div class="sig-col">Koordinator ${esc(id.unit||'')},</div><div class="sig-col">Penyuluh,</div></div>
-    <div class="sig-row2"><div class="sig-col sig-img">${state.sig.koord?`<img src="${state.sig.koord}">`:''}</div><div class="sig-col sig-img">${state.sig.penyuluh?`<img src="${state.sig.penyuluh}">`:''}</div></div>
+    <div class="sig-row2 sig-img-row"><div class="sig-col sig-img">${state.sig.koord?`<img src="${state.sig.koord}">`:''}</div><div class="sig-col sig-img">${state.sig.penyuluh?`<img src="${state.sig.penyuluh}">`:''}</div></div>
     <div class="sig-row2"><div class="sig-col sig-name">${esc(id.koordNama||'')}</div><div class="sig-col sig-name">${esc(id.nama||'')}</div></div>
     <div class="sig-row2"><div class="sig-col">NIP. ${esc(id.koordNip||'')}</div><div class="sig-col">NIP. ${esc(id.nip||'')}</div></div>
     <div class="foot">Laporan Diseminasi · kegiatan ${idx+1}</div>
@@ -633,8 +634,8 @@ async function exportWord(){
     const numHead=(ref,label,gap)=>p([txt(label)],{numbering:{reference:ref,level:0},spacing:gap?{before:240}:undefined});
     /* numbered "label : value" line, aligned via a single tab stop (no table); gap=true adds a blank line before it */
     const numKV=(ref,label,value,gap)=>p([txt(label),txt('\t:  '+(value||''))],{numbering:{reference:ref,level:0},tabStops:[{type:TabStopType.LEFT,position:TAB1}],spacing:gap?{before:240}:undefined});
-    /* continuation line, indented to the value column, no number/label */
-    const cont=(value)=>p([txt(value||'')],{indent:{left:TAB1}});
+    /* continuation line, indented to the value column, no number/label; gap=true adds a blank line before it */
+    const cont=(value,gap)=>p([txt(value||'')],{indent:{left:TAB1},spacing:gap?{before:240}:undefined});
     /* two values on one line separated by a tab (used for the signature block) */
     const twoCol=(runsLeft,runsRight)=>p([...runsLeft,txt('\t'),...runsRight],{tabStops:[{type:TabStopType.LEFT,position:TAB2}]});
 
@@ -674,21 +675,22 @@ async function exportWord(){
       kids.push(numKV('subB'+i,'Peserta',r.peserta||''));
       kids.push(numKV('main'+i,'Hasil Kegiatan','Masalah :',true));
       kids.push(cont(r.masalah||''));
-      kids.push(cont('Solusi :'));
+      kids.push(cont('Solusi :',true));
       kids.push(cont(r.solusi||''));
 
       if(r.foto){
         try{kids.push(p([await imgRunFromDataUrl(r.foto,380,260)],{alignment:AlignmentType.CENTER,spacing:{before:160,after:160}}));}catch(e){}
       }
 
-      kids.push(p([txt((id.kecamatan||'')+', '+fmtTanggalOnly(r.tanggal))],{alignment:AlignmentType.RIGHT,spacing:{before:400}}));
+      // dateline pushed inward to align with the "Penyuluh," column below it
+      kids.push(p([txt(''),txt('\t'+(id.kecamatan||'')+', '+fmtTanggalOnly(r.tanggal))],{tabStops:[{type:TabStopType.LEFT,position:TAB2}],spacing:{before:400}}));
       kids.push(p([txt('Mengetahui,')],{spacing:{before:80}}));
       kids.push(twoCol([txt('Koordinator '+(id.unit||'')+',')],[txt('Penyuluh,')]));
 
       let koordImg=null,penyuluhImg=null;
       if(state.sig.koord){try{koordImg=await imgRunFromDataUrl(state.sig.koord,140,70);}catch(e){}}
       if(state.sig.penyuluh){try{penyuluhImg=await imgRunFromDataUrl(state.sig.penyuluh,140,70);}catch(e){}}
-      kids.push(p([koordImg||txt(''),txt('\t'),penyuluhImg||txt('')],{tabStops:[{type:TabStopType.LEFT,position:TAB2}],spacing:{before:200}}));
+      kids.push(p([koordImg||txt(''),txt('\t'),penyuluhImg||txt('')],{tabStops:[{type:TabStopType.LEFT,position:TAB2}],spacing:{before:680}}));
 
       kids.push(twoCol([txt(id.koordNama||'',{bold:true})],[txt(id.nama||'',{bold:true})]));
       kids.push(twoCol([txt('NIP. '+(id.koordNip||''))],[txt('NIP. '+(id.nip||''))]));
