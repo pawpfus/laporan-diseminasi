@@ -181,14 +181,15 @@
     .card-head{padding:13px 14px}
     .card-body{padding:15px}
     .step{display:none}
-    .topbar-inner{padding:10px 12px;gap:6px 8px;flex-wrap:wrap;justify-content:space-between}
-    .brand{flex:1 1 100%;margin-bottom:2px}
-    .brand h1{font-size:14px;white-space:normal;line-height:1.15}
+    .topbar-inner{padding:10px 12px;gap:6px;flex-wrap:nowrap}
+    .brand{flex:0 1 auto;gap:8px}
+    .brand h1{font-size:13.5px;white-space:normal;line-height:1.15}
     .brand p{display:none}
-    .spacer{display:none}
-    .logo{width:34px;height:34px;border-radius:9px}
-    .btn{padding:8px 10px;font-size:12px;flex:1 1 auto;justify-content:center}
-    .btn-reset{width:36px;height:36px;padding:0;border-radius:50%;justify-content:center;flex:0 0 auto}
+    .logo{width:32px;height:32px;border-radius:9px}
+    .btn{padding:7px 10px;font-size:11.5px;flex:0 0 auto;justify-content:center;gap:5px}
+    .btn svg{width:14px;height:14px}
+    .btn-toggle{width:31px;height:31px}
+    .btn-reset{width:31px;height:31px;padding:0;border-radius:50%;justify-content:center;flex:0 0 auto}
     .btn-reset .btn-lbl{display:none}
     .entry-fields{grid-template-columns:1fr 1fr}
     /* 16px inputs prevent iOS auto-zoom on focus */
@@ -200,9 +201,12 @@
     .entry-main{padding:12px}
     .entry-fields{grid-template-columns:1fr}
     .del-btn{margin:10px 8px 0 0}
-    .btn{padding:8px 10px}
-    .btn svg{width:15px;height:15px}
-    .btn-reset{width:34px;height:34px}
+    .topbar-inner{gap:5px;padding:9px 10px}
+    .brand h1{font-size:12.5px}
+    .logo{width:29px;height:29px}
+    .btn{padding:6px 8px;font-size:11px}
+    .btn svg{width:13px;height:13px}
+    .btn-toggle,.btn-reset{width:29px;height:29px}
     .foto-wrap{max-width:100%}
   }
   @media print{.topbar,.wrap,.toast{display:none!important}}
