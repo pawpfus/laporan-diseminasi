@@ -526,7 +526,7 @@ body{font-family:'Times New Roman',Times,serif;color:#000}
 .num-sub .col{width:12px;flex:0 0 12px}
 .num-sub .val{flex:1}
 .num-cont{font-size:12.5px;line-height:1.65;padding-left:214px}
-.num-gap{margin-top:20px}
+.num-gap{margin-top:28px}
 .foto-box{text-align:center;margin:14px 0}
 .foto-box img{max-width:420px;max-height:280px;object-fit:contain;border:0.5px solid #999;border-radius:4px}
 .sig-row2{display:flex;font-size:12.5px;margin-top:2px;color:#000}
@@ -630,22 +630,27 @@ async function exportWord(){
     const TAB2=5040;   // left signature column -> right signature column
     const NUM_IND=260,SUB_IND=680; // numbering indents (twips)
 
+    const GAP=340; // twips before a new numbered block/section (~1.5 lines at 11pt)
     /* numbered heading line, e.g. "1. Penyuluh Pertanian" (no colon/value); gap=true adds a blank line before it */
-    const numHead=(ref,label,gap)=>p([txt(label)],{numbering:{reference:ref,level:0},spacing:gap?{before:240}:undefined});
+    const numHead=(ref,label,gap)=>p([txt(label)],{numbering:{reference:ref,level:0},spacing:gap?{before:GAP}:undefined});
     /* numbered "label : value" line, aligned via a single tab stop (no table); gap=true adds a blank line before it */
-    const numKV=(ref,label,value,gap)=>p([txt(label),txt('\t:  '+(value||''))],{numbering:{reference:ref,level:0},tabStops:[{type:TabStopType.LEFT,position:TAB1}],spacing:gap?{before:240}:undefined});
+    const numKV=(ref,label,value,gap)=>p([txt(label),txt('\t:  '+(value||''))],{numbering:{reference:ref,level:0},tabStops:[{type:TabStopType.LEFT,position:TAB1}],spacing:gap?{before:GAP}:undefined});
     /* continuation line, indented to the value column, no number/label; gap=true adds a blank line before it */
-    const cont=(value,gap)=>p([txt(value||'')],{indent:{left:TAB1},spacing:gap?{before:240}:undefined});
+    const cont=(value,gap)=>p([txt(value||'')],{indent:{left:TAB1},spacing:gap?{before:GAP}:undefined});
     /* two values on one line separated by a tab (used for the signature block) */
     const twoCol=(runsLeft,runsRight)=>p([...runsLeft,txt('\t'),...runsRight],{tabStops:[{type:TabStopType.LEFT,position:TAB2}]});
 
     // each entry gets its own numbering instances so 1-5 / a-d restart per report page
+    // "run" here forces the auto-generated "1."/"a." glyphs to match the body text's own
+    // font/size exactly -- otherwise Word falls back to its default list font, which can be
+    // a different width and throw off the tab-stop alignment of everything after it.
+    const numRun={font:FONT,size:22};
     const numberingConfig=[];
     state.rows.forEach((r,i)=>{
       numberingConfig.push(
-        {reference:'main'+i,levels:[{level:0,format:LevelFormat.DECIMAL,text:'%1.',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:NUM_IND,hanging:NUM_IND}}}}]},
-        {reference:'subA'+i,levels:[{level:0,format:LevelFormat.LOWER_LETTER,text:'%1.',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:SUB_IND,hanging:NUM_IND}}}}]},
-        {reference:'subB'+i,levels:[{level:0,format:LevelFormat.LOWER_LETTER,text:'%1.',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:SUB_IND,hanging:NUM_IND}}}}]}
+        {reference:'main'+i,levels:[{level:0,format:LevelFormat.DECIMAL,text:'%1.',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:NUM_IND,hanging:NUM_IND}},run:numRun}}]},
+        {reference:'subA'+i,levels:[{level:0,format:LevelFormat.LOWER_LETTER,text:'%1.',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:SUB_IND,hanging:NUM_IND}},run:numRun}}]},
+        {reference:'subB'+i,levels:[{level:0,format:LevelFormat.LOWER_LETTER,text:'%1.',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:SUB_IND,hanging:NUM_IND}},run:numRun}}]}
       );
     });
 
