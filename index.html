@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Laporan Diseminasi</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#014421">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Laporan Diseminasi">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<style>
+  :root{
+    --ink:#1a1f1a; --ink-2:#3a4039; --ink-3:#6b7569; --ink-4:#9da89c;
+    --line:#e2e8e1; --line-2:#d0d8cf;
+    --bg:#f5f7f4; --card:#ffffff; --soft:#edf0ec;
+    --moss:#014421; --moss-2:#012e16; --moss-3:#b8d4c4; --moss-4:#e4f0ea;
+    --gold:#c47c12; --danger:#c0392b;
+    --shadow:0 4px 20px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+    --radius:12px;
+  }
+  body.dark{
+    --ink:#e8ede7; --ink-2:#c5ccc4; --ink-3:#8a9489; --ink-4:#5a635a;
+    --line:#222a22; --line-2:#2a332a;
+    --bg:#0d110d; --card:#1a221a; --soft:#1a211a;
+    --moss:#2e8a55; --moss-2:#46a06d; --moss-3:#162b1f; --moss-4:#0e1a14;
+    --shadow:0 4px 20px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Instrument Sans',sans-serif;
+    background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.5;
+    transition:background .3s,color .3s;
+  }
+  body.dark select, body.dark input, body.dark textarea{ background:var(--moss-3); color:var(--ink); border-color:var(--line); }
+  body.dark .entry, body.dark .sig-card{ background:var(--moss-4); }
+  body.dark .btn-line{ background:var(--moss-3); color:var(--ink); }
+  /* Top bar */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    --tb-fg:#1a1f1a; --tb-sub:rgba(20,28,20,.62);
+    --tb-btn:rgba(0,0,0,.05); --tb-btn-hover:rgba(0,0,0,.10); --tb-btn-border:rgba(0,0,0,.12);
+    background:#ffffff; color:var(--tb-fg); box-shadow:0 2px 12px rgba(0,0,0,0.07);
+    border-bottom:1px solid var(--line);
+  }
+  body.dark .topbar{
+    --tb-fg:#eef2f5; --tb-sub:rgba(255,255,255,.7);
+    --tb-btn:rgba(255,255,255,.06); --tb-btn-hover:rgba(255,255,255,.14); --tb-btn-border:rgba(255,255,255,.15);
+    background:linear-gradient(120deg,#161616 0%,#0a0a0a 60%,#000 100%);
+    box-shadow:0 4px 18px rgba(0,0,0,0.45); border-bottom:1px solid rgba(255,255,255,.07);
+  }
+  .topbar-inner{max-width:1160px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:16px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .logo{width:44px;height:44px;border-radius:10px;flex:0 0 auto;background:transparent;display:grid;place-items:center;overflow:hidden}
+  .logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .brand h1{font-size:15px;margin:0;font-weight:800;letter-spacing:.3px;line-height:1.06;white-space:nowrap}
+  .brand p{margin:1px 0 0;font-size:11.5px;color:var(--tb-sub);font-weight:500}
+  .spacer{flex:1}
+  .save-pill{font-size:11.5px;color:var(--tb-sub);display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .save-dot{width:8px;height:8px;border-radius:50%;background:#34c98a;box-shadow:0 0 0 0 rgba(52,201,138,.6)}
+  .save-dot.saving{animation:pulse 1.2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,201,138,.55)}70%{box-shadow:0 0 0 7px rgba(52,201,138,0)}100%{box-shadow:0 0 0 0 rgba(52,201,138,0)}}
+  .btn{
+    appearance:none;border:0;cursor:pointer;font:inherit;font-weight:600;font-size:13px;
+    padding:9px 15px;border-radius:11px;display:inline-flex;align-items:center;gap:8px;
+    transition:transform .08s ease,filter .15s ease,background .15s; white-space:nowrap;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn svg{width:16px;height:16px}
+  .btn-ghost{background:var(--tb-btn);color:var(--tb-fg);border:1px solid var(--tb-btn-border)}
+  .btn-ghost:hover{background:var(--tb-btn-hover)}
+  .btn-toggle{appearance:none;cursor:pointer;width:34px;height:34px;flex:0 0 auto;padding:0;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:var(--tb-btn);border:1px solid var(--tb-btn-border);color:var(--tb-fg);
+    transition:background .15s,transform .12s,box-shadow .15s}
+  .btn-toggle:hover{background:var(--tb-btn-hover);box-shadow:0 0 0 4px var(--tb-btn)}
+  .btn-toggle:active{transform:scale(.92)}
+  .btn-toggle svg{width:16px;height:16px}
+  .btn-word{background:#1e5fbf;color:#fff;box-shadow:0 2px 10px rgba(30,95,191,0.32)}
+  .btn-word:hover{filter:brightness(1.08)}
+  .btn-white{background:#e0322f;color:#fff;box-shadow:0 2px 10px rgba(224,50,47,0.32)}
+  .btn-white:hover{filter:brightness(1.06)}
+  /* Layout */
+  .wrap{max-width:1160px;margin:0 auto;padding:26px 22px 80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden}
+  .card-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--card)}
+  .card-head .ic{width:34px;height:34px;border-radius:10px;background:var(--soft);display:grid;place-items:center;color:var(--moss)}
+  .card-head .ic svg{width:19px;height:19px}
+  .card-head h2{margin:0;font-size:15px;font-weight:700}
+  .card-head p{margin:2px 0 0;font-size:12px;color:var(--ink-3)}
+  .step{margin-left:auto;font-size:11px;font-weight:700;color:var(--moss);background:var(--soft);padding:4px 10px;border-radius:999px;letter-spacing:.4px}
+  .card-body{padding:20px}
+  /* Form */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field.full{grid-column:1/-1}
+  label{font-size:12px;font-weight:600;color:var(--ink-2)}
+  input[type=text],input[type=date],textarea,select{
+    font:inherit;font-size:13.5px;color:var(--ink);background:#fff;
+    border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;
+    transition:border .15s,box-shadow .15s;
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--moss);box-shadow:0 0 0 3px rgba(1,68,33,.1)}
+  textarea{resize:vertical;min-height:64px;line-height:1.5}
+  .hint{font-size:11.5px;color:var(--ink-3)}
+  /* Autofill banner */
+  .auto-cta{display:flex;align-items:center;gap:14px;
+    background:linear-gradient(135deg,rgba(34,192,125,.14),rgba(21,163,106,.05));
+    border:1px solid rgba(34,192,125,.38);border-radius:12px;padding:13px 15px;margin-bottom:16px}
+  .auto-cta .auto-ic{width:40px;height:40px;flex:0 0 auto;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(180deg,#22c07d,#15a36a);color:#04210f;box-shadow:0 3px 10px rgba(21,163,106,.3)}
+  .auto-cta .auto-ic svg{width:21px;height:21px}
+  .auto-cta .auto-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .auto-cta .auto-txt strong{font-size:13.5px;font-weight:700}
+  .auto-cta .auto-txt span{font-size:12px;color:var(--ink-3)}
+  .auto-cta .btn-sm{flex:0 0 auto}
+  /* pill input */
+  .coord-pill{display:flex;align-items:center;gap:7px;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:4px 12px;transition:border .15s,box-shadow .15s}
+  .coord-pill:focus-within{border-color:var(--moss);box-shadow:0 0 0 3px rgba(1,68,33,.1)}
+  .coord-pill svg{width:13px;height:13px;flex:0 0 auto;color:var(--moss)}
+  .coord-pill input{border:0!important;background:transparent!important;padding:4px 0;font-size:13px;width:100%;color:var(--ink)}
+  .coord-pill input:focus{outline:none;box-shadow:none}
+  body.dark .coord-pill{background:var(--moss-4)}
+  body.dark .coord-pill input{background:transparent!important;color:var(--ink)}
+  /* pengesahan / signature cards */
+  .sig-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .sig-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:16px;display:flex;flex-direction:column;gap:10px}
+  .sig-card h3{margin:0;font-size:13px;font-weight:700;color:var(--moss)}
+  .sig-slot{border:1.5px dashed #cdded5;border-radius:10px;background:var(--soft);min-height:90px;position:relative;overflow:hidden;cursor:pointer;transition:.15s;display:grid;place-items:center}
+  .sig-slot:hover{border-color:var(--moss);background:var(--moss-4)}
+  .sig-slot.filled{border-style:solid;border-color:var(--line);background:#fff;min-height:0}
+  .sig-slot .ph{display:flex;flex-direction:column;align-items:center;gap:5px;color:#7d9189;font-size:11px;font-weight:600;pointer-events:none}
+  .sig-slot .ph svg{width:18px;height:18px;opacity:.7}
+  .sig-slot img{width:100%;height:auto;max-height:110px;object-fit:contain;display:block}
+  .sig-remove{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:6px;background:rgba(0,0,0,.55);color:#fff;border:0;cursor:pointer;display:none;place-items:center;z-index:3}
+  .sig-slot.filled .sig-remove{display:grid}
+  .sig-remove svg{width:12px;height:12px}
+  /* entries */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  .toolbar .count{font-size:12.5px;color:var(--ink-3);font-weight:600}
+  .btn-sm{padding:7px 12px;font-size:12.5px;border-radius:9px}
+  .btn-emerald{background:var(--moss);color:#fff;box-shadow:0 2px 8px rgba(1,68,33,0.25)}
+  .btn-emerald:hover{filter:brightness(1.1)}
+  .btn-line{background:#fff;border:1px solid var(--line);color:#33473d}
+  .btn-line:hover{background:var(--soft)}
+  .rows{display:flex;flex-direction:column;gap:14px}
+  .entry{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;transition:box-shadow .15s,border .15s}
+  .entry:hover{box-shadow:0 6px 18px rgba(16,40,30,.08);border-color:#d3e2da}
+  .entry-top{display:flex;gap:0;align-items:stretch}
+  .entry-no{flex:0 0 64px;background:var(--moss);color:#dffaee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 6px}
+  .entry-no span{font-size:10px;color:rgba(255,255,255,0.6);font-weight:600;letter-spacing:.5px}
+  .entry-main{flex:1;padding:14px 16px;min-width:0;display:flex;flex-direction:column;gap:10px}
+  .entry-fields{display:grid;grid-template-columns:150px 160px 1fr;gap:10px}
+  .entry-fields .field-sm,.field-sm{display:flex;flex-direction:column;gap:4px}
+  .entry-fields label,.field-sm label{font-size:10.5px;letter-spacing:.4px;color:#85968d}
+  .entry-fields input,.entry-fields select,.field-sm input,.field-sm textarea{padding:8px 10px;font-size:12.5px}
+  .field-sm textarea{min-height:52px}
+  .del-btn{flex:0 0 auto;align-self:flex-start;margin:12px 12px 0 0;background:#fff;border:1px solid var(--line);color:var(--danger);width:30px;height:30px;border-radius:8px;cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .del-btn:hover{background:#fdecea;border-color:#f0b8b1}
+  .del-btn svg{width:15px;height:15px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .foto-wrap{max-width:260px}
+  .ev-slot{border:1.5px dashed #cdded5;border-radius:11px;background:var(--soft);min-height:120px;position:relative;overflow:hidden;cursor:pointer;transition:.15s;display:grid;place-items:center}
+  .ev-slot:hover{border-color:var(--moss);background:var(--moss-4)}
+  .ev-slot.filled{border-style:solid;border-color:var(--line);background:#fff;min-height:0}
+  .ev-slot .ph{display:flex;flex-direction:column;align-items:center;gap:5px;color:#7d9189;font-size:11px;font-weight:600;pointer-events:none}
+  .ev-slot .ph svg{width:18px;height:18px;opacity:.7}
+  .ev-slot img{width:100%;height:auto;object-fit:contain;display:block}
+  .ev-remove{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:6px;background:rgba(0,0,0,.55);color:#fff;border:0;cursor:pointer;display:none;place-items:center;z-index:3}
+  .ev-slot.filled .ev-remove{display:grid}
+  .ev-remove svg{width:12px;height:12px}
+  .empty{padding:46px 20px;text-align:center;color:var(--ink-3)}
+  .empty svg{width:42px;height:42px;opacity:.4;margin-bottom:10px}
+  .footer-note{text-align:center;font-size:11.5px;color:var(--ink-3);margin-top:10px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#eafff5;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:0 12px 32px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:.25s;z-index:100;display:flex;align-items:center;gap:9px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.err{background:var(--danger)}
+  @media(max-width:960px){.save-pill{display:none}}
+  @media(max-width:760px){
+    .wrap{padding:16px 12px 64px}
+    .grid,.sig-row,.row2{grid-template-columns:1fr}
+    .card-head{padding:13px 14px}
+    .card-body{padding:15px}
+    .step{display:none}
+    .topbar-inner{padding:10px 12px;gap:6px 8px;flex-wrap:wrap;justify-content:space-between}
+    .brand{flex:1 1 100%;margin-bottom:2px}
+    .brand h1{font-size:14px;white-space:normal;line-height:1.15}
+    .brand p{display:none}
+    .spacer{display:none}
+    .logo{width:34px;height:34px;border-radius:9px}
+    .btn{padding:8px 10px;font-size:12px;flex:1 1 auto;justify-content:center}
+    .entry-fields{grid-template-columns:1fr 1fr}
+    /* 16px inputs prevent iOS auto-zoom on focus */
+    input,select,textarea{font-size:16px}
+    textarea{font-size:14px}
+  }
+  @media(max-width:440px){
+    .entry-no{flex:0 0 46px}
+    .entry-main{padding:12px}
+    .entry-fields{grid-template-columns:1fr}
+    .del-btn{margin:10px 8px 0 0}
+    .btn{padding:8px 10px}
+    .btn svg{width:15px;height:15px}
+    .foto-wrap{max-width:100%}
+  }
+  @media print{.topbar,.wrap,.toast{display:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo"><img src="logo.png" alt="Logo" onerror="this.style.display='none'"></div>
+      <div><h1>Laporan<br>Diseminasi</h1></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="save-pill"><span class="save-dot" id="saveDot"></span><span id="saveTxt">Tersimpan otomatis</span></div>
+    <button class="btn-toggle" onclick="toggleTheme()" title="Ganti Tema">
+      <svg id="sun" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+    <button class="btn btn-ghost" onclick="resetAll()" title="Mulai dari awal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Reset
+    </button>
+    <button class="btn btn-word" onclick="exportWord()" title="Unduh file Word (.docx)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 13 1.5 5 1.5-4 1.5 4L16 13"/></svg>Word
+    </button>
+    <button class="btn btn-white" onclick="downloadPDF()" title="Unduh file PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>PDF
+    </button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- IDENTITAS -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div><h2>Identitas Penyuluh &amp; Instansi</h2><p>Header sampul dan setiap lembar laporan</p></div>
+      <span class="step">LANGKAH 1</span>
+    </div>
+    <div class="card-body">
+      <div class="auto-cta">
+        <span class="auto-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>
+        <span class="auto-txt"><strong>Isi otomatis data tetap</strong><span>Muat kembali data identitas, dasar pelaksanaan, dan pengesahan default.</span></span>
+        <button class="btn btn-emerald btn-sm" onclick="applyDefaults()">Isi Otomatis</button>
+      </div>
+      <div class="grid">
+        <div class="field"><label>Nama Penyuluh</label><input type="text" id="nama" placeholder="Nama lengkap"></div>
+        <div class="field"><label>NIP</label><input type="text" id="nip" placeholder="NIP"></div>
+        <div class="field"><label>Pangkat/Golongan</label><input type="text" id="pangkat" placeholder="Pangkat/Golongan"></div>
+        <div class="field"><label>Jabatan</label><input type="text" id="jabatan" placeholder="Jabatan"></div>
+        <div class="field"><label>Unit Kerja</label><input type="text" id="unit" placeholder="BPP ..."></div>
+        <div class="field"><label>Kecamatan</label><input type="text" id="kecamatan" placeholder="Kecamatan"></div>
+        <div class="field"><label>Kabupaten</label><input type="text" id="kabupaten" placeholder="Kabupaten"></div>
+        <div class="field"><label>Provinsi</label><input type="text" id="provinsi" placeholder="Provinsi"></div>
+        <div class="field">
+          <label>Bulan (sampul)</label>
+          <select id="bulan">
+            <option>JANUARI</option><option>FEBRUARI</option><option>MARET</option><option>APRIL</option>
+            <option>MEI</option><option>JUNI</option><option>JULI</option><option>AGUSTUS</option>
+            <option>SEPTEMBER</option><option>OKTOBER</option><option>NOVEMBER</option><option>DESEMBER</option>
+          </select>
+        </div>
+        <div class="field"><label>Tahun (sampul)</label><input type="text" id="tahun" placeholder="2026"></div>
+        <div class="field full"><label>Dasar Pelaksanaan (baris 1)</label><input type="text" id="dasar1" placeholder="Programa Penyuluhan Pertanian ..."></div>
+        <div class="field full"><label>Dasar Pelaksanaan (baris 2)</label><input type="text" id="dasar2" placeholder="Rencana Kerja Penyuluh Pertanian Tahun ..."></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PENGESAHAN -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>
+      <div><h2>Pengesahan &amp; Tanda Tangan</h2><p>Kolom TTD dibiarkan kosong untuk ditandatangani basah setelah dicetak</p></div>
+      <span class="step">LANGKAH 2</span>
+    </div>
+    <div class="card-body">
+      <div class="sig-row">
+        <div class="sig-card">
+          <h3>Mengetahui, Koordinator BPP</h3>
+          <div class="field">
+            <label>Nama Koordinator</label>
+            <div class="coord-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="koordNama" placeholder="Nama Koordinator, gelar">
+            </div>
+          </div>
+          <div class="field"><label>NIP Koordinator</label><input type="text" id="koordNip" placeholder="NIP Koordinator"></div>
+          <div class="field">
+            <label>Unggah TTD Koordinator (opsional)</label>
+            <div class="sig-slot" id="sigSlotKoord" onclick="pickSig('koord')">
+              <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>Unggah TTD</div>
+              <button class="sig-remove" onclick="event.stopPropagation();removeSig('koord')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="sig-card">
+          <h3>Penyuluh</h3>
+          <div class="hint" style="margin-top:-2px">Nama &amp; NIP diambil otomatis dari data Identitas Penyuluh.</div>
+          <div class="field">
+            <label>Unggah TTD Penyuluh (opsional)</label>
+            <div class="sig-slot" id="sigSlotPenyuluh" onclick="pickSig('penyuluh')">
+              <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>Unggah TTD</div>
+              <button class="sig-remove" onclick="event.stopPropagation();removeSig('penyuluh')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEGIATAN -->
+  <div class="card">
+    <div class="card-head">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 4v16"/></svg></div>
+      <div><h2>Daftar Kegiatan Diseminasi</h2><p>Satu lembar laporan per kegiatan</p></div>
+      <span class="step">LANGKAH 3</span>
+    </div>
+    <div class="card-body">
+      <div class="toolbar">
+        <button class="btn btn-emerald btn-sm" onclick="addRow()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Tambah Kegiatan</button>
+        <button class="btn btn-line btn-sm" onclick="clearRows()">Kosongkan Daftar</button>
+        <span class="count" id="countTxt">0 kegiatan</span>
+      </div>
+      <div class="rows" id="rows"></div>
+      <div class="empty" id="emptyState">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+        <div>Belum ada kegiatan. Klik <b>Tambah Kegiatan</b> untuk mulai.</div>
+      </div>
+      <div class="footer-note">Semua data &amp; gambar tersimpan otomatis di browser ini. Tidak ada yang dikirim ke server.</div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fotoInput" accept="image/*" style="display:none">
+<input type="file" id="sigInput" accept="image/*" style="display:none">
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULTS={
+  nama:'MUHAMMAD FACHRURI, S.TP.',
+  nip:'19940702 202012 1 002',
+  pangkat:'Penata Muda Tingkat I, III/b',
+  jabatan:'Penyuluh Pertanian Ahli Pertama',
+  unit:'BPP Pitu Riawa',
+  kecamatan:'Pitu Riawa',
+  kabupaten:'Sidenreng Rappang',
+  provinsi:'Sulawesi Selatan',
+  dasar1:'Programa Penyuluhan Pertanian 2026',
+  dasar2:'Rencana Kerja Penyuluh Pertanian Tahun 2026',
+  koordNama:'HARYANA HATTA, SP., M.P.',
+  koordNip:'19870220 202012 2 003'
+};
+const ID_FIELDS=Object.keys(DEFAULTS);
+const METODE=['Kunjungan','Diskusi','Pertemuan','Penyuluhan/Ceramah','Demonstrasi','Sosialisasi','Lainnya'];
+const KEY='laporan_diseminasi_v1';
+let state={id:{},bulan:'',tahun:'',sig:{koord:null,penyuluh:null},rows:[]};
+let pendingFoto=null; // rid
+let pendingSig=null;  // 'koord'|'penyuluh'
+
+/* ---------- persistence ---------- */
+function val(id){const e=document.getElementById(id);return e?e.value:'';}
+function setVal(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
+function save(){
+  state.id={};ID_FIELDS.forEach(k=>state.id[k]=val(k));
+  state.bulan=val('bulan');state.tahun=val('tahun');
+  try{localStorage.setItem(KEY,JSON.stringify(state));flashSave();}
+  catch(e){toast('Penyimpanan penuh (gambar terlalu besar)',true);}
+}
+function load(){
+  let raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+  if(raw){try{state=JSON.parse(raw);}catch(e){state={id:{},bulan:'',tahun:'',sig:{koord:null,penyuluh:null},rows:[]};}}
+  if(!state.id)state.id={};
+  if(!state.sig)state.sig={koord:null,penyuluh:null};
+  if(!Array.isArray(state.rows))state.rows=[];
+  const haveAny=Object.keys(state.id).length;
+  ID_FIELDS.forEach(k=>setVal(k,haveAny?(state.id[k]??''):DEFAULTS[k]));
+  setVal('bulan',state.bulan||currentMonthName());
+  setVal('tahun',state.tahun||String(new Date().getFullYear()));
+  render();renderSig();
+}
+function applyDefaults(){
+  ID_FIELDS.forEach(k=>setVal(k,DEFAULTS[k]));
+  setVal('bulan',currentMonthName());setVal('tahun',String(new Date().getFullYear()));
+  save();toast('Data default dimuat');
+}
+let saveTimer=null;
+function flashSave(){
+  const d=document.getElementById('saveDot'),t=document.getElementById('saveTxt');
+  d.classList.add('saving');t.textContent='Menyimpan…';
+  clearTimeout(saveTimer);saveTimer=setTimeout(()=>{d.classList.remove('saving');t.textContent='Tersimpan otomatis';},650);
+}
+
+/* ---------- rows ---------- */
+function nextNo(){return state.rows.length+1;}
+function addRow(){
+  const r={rid:Date.now()+Math.random().toString(36).slice(2,6),tanggal:'',metode:'Kunjungan',tempat:'',materi:'',peserta:'',masalah:'',solusi:'',foto:null};
+  state.rows.push(r);render();save();
+  return r;
+}
+function delRow(rid){state.rows=state.rows.filter(r=>r.rid!==rid);render();save();}
+function clearRows(){if(state.rows.length&&!confirm('Kosongkan seluruh daftar kegiatan?'))return;state.rows=[];render();save();}
+function field(rid,k,v){const r=state.rows.find(x=>x.rid===rid);if(r){r[k]=v;save();}}
+
+function render(){
+  const box=document.getElementById('rows');
+  document.getElementById('emptyState').style.display=state.rows.length?'none':'block';
+  document.getElementById('countTxt').textContent=state.rows.length+' kegiatan';
+  box.innerHTML='';
+  state.rows.forEach((r,i)=>{
+    const el=document.createElement('div');el.className='entry';
+    const opts=METODE.map(m=>`<option ${m===r.metode?'selected':''}>${m}</option>`).join('');
+    el.innerHTML=`
+      <div class="entry-top">
+        <div class="entry-no"><span>NO</span>${i+1}</div>
+        <div class="entry-main">
+          <div class="entry-fields">
+            <div class="field-sm"><label>Waktu Pelaksanaan</label><input type="date" value="${esc(r.tanggal)}" onchange="field('${r.rid}','tanggal',this.value)"></div>
+            <div class="field-sm"><label>Metode</label><select onchange="field('${r.rid}','metode',this.value)">${opts}</select></div>
+            <div class="field-sm"><label>Tempat/Lokasi</label><input type="text" value="${esc(r.tempat)}" placeholder="Lokasi kegiatan" onchange="field('${r.rid}','tempat',this.value)"></div>
+          </div>
+          <div class="field-sm"><label>Materi Diseminasi</label><input type="text" value="${esc(r.materi)}" placeholder="Judul / topik diseminasi" onchange="field('${r.rid}','materi',this.value)"></div>
+          <div class="field-sm"><label>Peserta</label><input type="text" value="${esc(r.peserta)}" placeholder="contoh: Kelompok Tani" onchange="field('${r.rid}','peserta',this.value)"></div>
+          <div class="row2">
+            <div class="field-sm"><label>Hasil Kegiatan — Masalah</label><textarea placeholder="Masalah yang dihadapi" onchange="field('${r.rid}','masalah',this.value)">${esc(r.masalah)}</textarea></div>
+            <div class="field-sm"><label>Hasil Kegiatan — Solusi</label><textarea placeholder="Solusi / tindak lanjut" onchange="field('${r.rid}','solusi',this.value)">${esc(r.solusi)}</textarea></div>
+          </div>
+          <div class="field-sm foto-wrap"><label>Foto Dokumentasi</label>
+            <div class="ev-slot ${r.foto?'filled':''}" onclick="pickFoto('${r.rid}')">
+              ${r.foto?`<img src="${r.foto}" alt="Foto kegiatan">`:`<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>Unggah Foto</div>`}
+              <button class="ev-remove" onclick="event.stopPropagation();removeFoto('${r.rid}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <button class="del-btn" title="Hapus" onclick="delRow('${r.rid}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+      </div>`;
+    box.appendChild(el);
+  });
+}
+
+/* ---------- signature slots ---------- */
+function renderSig(){
+  ['koord','penyuluh'].forEach(k=>{
+    const box=document.getElementById(k==='koord'?'sigSlotKoord':'sigSlotPenyuluh');
+    const img=state.sig[k];
+    box.classList.toggle('filled',!!img);
+    const ph=box.querySelector('.ph');
+    let im=box.querySelector('img');
+    if(img){
+      if(!im){im=document.createElement('img');box.insertBefore(im,box.firstChild);}
+      im.src=img;if(ph)ph.style.display='none';
+    }else{
+      if(im)im.remove();if(ph)ph.style.display='';
+    }
+  });
+}
+function pickSig(k){pendingSig=k;document.getElementById('sigInput').click();}
+function removeSig(k){state.sig[k]=null;renderSig();save();}
+document.getElementById('sigInput').addEventListener('change',function(e){
+  const f=e.target.files[0];if(!f||!pendingSig)return;
+  resizeImage(f,900,500,0.92).then(dataUrl=>{
+    state.sig[pendingSig]=dataUrl;renderSig();save();pendingSig=null;this.value='';
+  }).catch(()=>{toast('Gagal memuat gambar',true);this.value='';});
+});
+
+/* ---------- foto per kegiatan ---------- */
+function pickFoto(rid){pendingFoto=rid;document.getElementById('fotoInput').click();}
+function removeFoto(rid){const r=state.rows.find(x=>x.rid===rid);if(r){r.foto=null;render();save();}}
+document.getElementById('fotoInput').addEventListener('change',function(e){
+  const f=e.target.files[0];if(!f||!pendingFoto)return;
+  resizeImage(f,1600,2000,0.9).then(dataUrl=>{
+    const r=state.rows.find(x=>x.rid===pendingFoto);
+    if(r){r.foto=dataUrl;render();save();}
+    pendingFoto=null;this.value='';
+  }).catch(()=>{toast('Gagal memuat gambar',true);this.value='';});
+});
+function resizeImage(file,maxW,maxH,q){
+  return new Promise((res,rej)=>{
+    const img=new Image();const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      let{width:w,height:h}=img;const ratio=Math.min(maxW/w,maxH/h,1);
+      w=Math.round(w*ratio);h=Math.round(h*ratio);
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',q));
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);rej();};img.src=url;
+  });
+}
+const dimCache={};
+const dimsOf=u=>dimCache[u]||(dimCache[u]=new Promise(res=>{const im=new Image();im.onload=()=>res({w:im.naturalWidth||120,h:im.naturalHeight||150});im.onerror=()=>res({w:120,h:150});im.src=u;}));
+
+/* ---------- helpers ---------- */
+const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const DAYS=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+function currentMonthName(){return MONTHS[new Date().getMonth()].toUpperCase();}
+function fmtTanggalHari(v){
+  if(!v)return '';
+  const m=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m)return v;
+  const d=new Date(+m[1],+m[2]-1,+m[3]);
+  return DAYS[d.getDay()]+', '+(+m[3])+' '+MONTHS[+m[2]-1]+' '+m[1];
+}
+function fmtTanggalOnly(v){
+  if(!v)return '';
+  const m=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m)return v;
+  return (+m[3])+' '+MONTHS[+m[2]-1]+' '+m[1];
+}
+function todayId(){const d=new Date();return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
+function fileBase(){return ('Laporan Diseminasi '+todayId()).replace(/\s+/g,' ').trim();}
+function idBlockRows(){
+  const id=state.id;
+  return [
+    ['Nama dan NIP',id.nama+' / '+id.nip],
+    ['Pangkat/Golongan',id.pangkat],
+    ['Jabatan',id.jabatan],
+    ['Unit Kerja',id.unit],
+    ['__cont__','Kabupaten '+(id.kabupaten||'')]
+  ];
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(err?' err':'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2600);}
+function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},200);}
+
+/* ============================================================
+   PDF EXPORT (html2canvas + jsPDF)
+   ============================================================ */
+const PRINT_CSS=`
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#fff}
+body{font-family:'Instrument Sans',sans-serif;color:#000}
+@page{size:A4;margin:0}
+.sheet{width:794px;min-height:1123px;padding:49px 42px 60px;position:relative;page-break-after:always;overflow:hidden}
+.sheet:last-child{page-break-after:auto}
+.cover{text-align:center;padding-top:40px}
+.cover .t1{font-weight:700;font-size:16px;line-height:1.4;margin:0 30px}
+.cover .t2{font-weight:700;font-size:14px;margin-top:18px}
+.cover .t3{font-weight:600;font-size:13px;margin-top:4px}
+.cover .logo{width:120px;height:120px;object-fit:contain;margin:26px auto}
+.cover .oleh{font-size:13px;font-weight:700;margin-top:26px}
+.cover .nama{font-size:14px;font-weight:700;margin-top:10px}
+.cover .nip{font-size:12.5px;margin-top:2px}
+.cover .inst{font-size:13px;font-weight:700;margin-top:40px;line-height:1.7}
+.banner{text-align:center;padding:2px 10px 12px;margin-bottom:10px}
+.banner .t1{font-weight:700;font-size:14.5px;letter-spacing:.2px;line-height:1.3}
+.banner img{width:44px;height:44px;object-fit:contain;margin:6px auto 0;display:block}
+.p-id{display:flex;font-size:12.5px;line-height:1.55;font-weight:400}
+.p-id .k{width:150px;flex:0 0 150px}
+.p-id .c{width:12px;flex:0 0 12px}
+.p-id.cont .v{padding-left:150px}
+.sec-label{font-weight:700;font-size:12.5px;margin-top:8px}
+.foto-box{text-align:center;margin:14px 0}
+.foto-box img{max-width:420px;max-height:280px;object-fit:contain;border:0.5px solid #999;border-radius:4px}
+.sigtab{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:18px}
+.sigtab td{width:50%;vertical-align:top;padding:2px 8px}
+.sig-date{text-align:right;font-size:12.5px}
+.sig-img{height:70px;display:flex;align-items:center}
+.sig-img img{max-height:65px;max-width:180px;object-fit:contain}
+.sig-name{font-weight:700;margin-top:2px}
+.foot{position:absolute;left:42px;right:42px;bottom:26px;text-align:right;font-size:11px}
+`;
+function pdfCoverHTML(){
+  const id=state.id;
+  return `<div class="sheet cover">
+    <div class="t1">LAPORAN PELAKSANAAN TUGAS DAN FUNGSI PENYULUH PERTANIAN</div>
+    <div class="t2">Kegiatan Diseminasi Informasi Pertanian</div>
+    <div class="t3">${esc(state.bulan||'')} ${esc(state.tahun||'')}</div>
+    <img class="logo" src="kementan-logo.png">
+    <div class="oleh">OLEH:</div>
+    <div class="nama">${esc(id.nama||'')}</div>
+    <div class="nip">NIP. ${esc(id.nip||'')}</div>
+    <div class="inst">
+      BALAI PENYULUHAN PERTANIAN<br>
+      KECAMATAN ${esc((id.kecamatan||'').toUpperCase())}<br>
+      KABUPATEN ${esc((id.kabupaten||'').toUpperCase())}<br>
+      ${esc((id.provinsi||'').toUpperCase())}<br>
+      ${esc(state.tahun||'')}
+    </div>
+  </div>`;
+}
+function pIdRow(k,v,cont){return `<div class="p-id${cont?' cont':''}">${cont?'':`<span class="k">${esc(k)}</span><span class="c">:</span>`}<span class="v">${esc(v||'')}</span></div>`;}
+function pdfEntryHTML(r,idx){
+  const id=state.id;
+  return `<div class="sheet">
+    <div class="banner"><div class="t1">LAPORAN&nbsp;&nbsp;KEGIATAN DISEMINASI INFORMASI PERTANIAN</div><img src="kementan-logo.png"></div>
+    <div class="sec-label">Penyuluh Pertanian</div>
+    ${pIdRow('Nama dan NIP',(id.nama||'')+' / '+(id.nip||''))}
+    ${pIdRow('Pangkat/Golongan',id.pangkat)}
+    ${pIdRow('Jabatan',id.jabatan)}
+    ${pIdRow('Unit Kerja',id.unit)}
+    ${pIdRow('','Kabupaten '+(id.kabupaten||''),true)}
+    ${pIdRow('Dasar Pelaksanaan',id.dasar1)}
+    ${pIdRow('',id.dasar2,true)}
+    ${pIdRow('Materi Diseminasi',r.materi)}
+    <div class="sec-label" style="margin-top:10px">Pelaksanaan Kegiatan</div>
+    ${pIdRow('Waktu Pelaksanaan',fmtTanggalHari(r.tanggal))}
+    ${pIdRow('Tempat/Lokasi',r.tempat)}
+    ${pIdRow('Metode',r.metode)}
+    ${pIdRow('Peserta',r.peserta)}
+    ${pIdRow('Hasil Kegiatan','Masalah :')}
+    ${pIdRow('',r.masalah,true)}
+    ${pIdRow('','Solusi :',true)}
+    ${pIdRow('',r.solusi,true)}
+    ${r.foto?`<div class="foto-box"><img src="${r.foto}"></div>`:''}
+    <div class="sig-date">${esc(id.kecamatan||'')}, ${esc(fmtTanggalOnly(r.tanggal))}</div>
+    <table class="sigtab"><tbody>
+      <tr><td>Mengetahui,</td><td></td></tr>
+      <tr><td>Koordinator ${esc(id.unit||'')},</td><td>Penyuluh,</td></tr>
+      <tr><td class="sig-img">${state.sig.koord?`<img src="${state.sig.koord}">`:''}</td><td class="sig-img">${state.sig.penyuluh?`<img src="${state.sig.penyuluh}">`:''}</td></tr>
+      <tr><td class="sig-name">${esc(id.koordNama||'')}</td><td class="sig-name">${esc(id.nama||'')}</td></tr>
+      <tr><td>NIP. ${esc(id.koordNip||'')}</td><td>NIP. ${esc(id.nip||'')}</td></tr>
+    </tbody></table>
+    <div class="foot">Laporan Diseminasi · kegiatan ${idx+1}</div>
+  </div>`;
+}
+function imagesReady(root){const imgs=[...root.querySelectorAll('img')];return Promise.all(imgs.map(im=>im.complete?Promise.resolve():new Promise(res=>{im.onload=im.onerror=res;})));}
+async function downloadPDF(){
+  if(!state.rows.length){toast('Belum ada kegiatan untuk diunduh',true);return;}
+  if(typeof html2canvas==='undefined'||!window.jspdf){toast('Library PDF belum termuat — cek koneksi internet',true);return;}
+  save();toast('Membuat file PDF…');
+  const sheets=pdfCoverHTML()+state.rows.map((r,i)=>pdfEntryHTML(r,i)).join('');
+  const holder=document.createElement('div');
+  holder.style.cssText='position:fixed;left:-10000px;top:0;background:#fff';
+  holder.innerHTML=`<style>${PRINT_CSS}</style>${sheets}`;
+  document.body.appendChild(holder);
+  await imagesReady(holder);
+  try{
+    const sheetEls=[...holder.querySelectorAll('.sheet')];
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF('p','pt','a4');
+    const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();
+    for(let i=0;i<sheetEls.length;i++){
+      const canvas=await html2canvas(sheetEls[i],{scale:3,backgroundColor:'#ffffff',useCORS:true,logging:false,imageTimeout:0});
+      const img=canvas.toDataURL('image/jpeg',0.95);
+      if(i>0)pdf.addPage();
+      pdf.addImage(img,'JPEG',0,0,W,H,undefined,'SLOW');
+    }
+    pdf.save(fileBase()+'.pdf');
+    toast('File PDF diunduh');
+  }catch(e){toast('Gagal membuat PDF: '+e.message,true);}
+  finally{holder.remove();}
+}
+
+/* ============================================================
+   WORD EXPORT (docx.js)
+   ============================================================ */
+function dataUrlToU8(d){const b=atob(d.split(',')[1]);const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+async function fileBytes(url){const res=await fetch(url);const buf=await res.arrayBuffer();return new Uint8Array(buf);}
+async function imgRunFromDataUrl(dataUrl,maxW,maxH){
+  const D=window.docx;const dim=await dimsOf(dataUrl);
+  const ratio=Math.min(maxW/dim.w,maxH/dim.h,1);
+  const w=Math.round(dim.w*ratio),h=Math.round(dim.h*ratio);
+  const type=dataUrl.includes('image/png')?'png':'jpg';
+  return new D.ImageRun({data:dataUrlToU8(dataUrl),transformation:{width:w,height:h},type});
+}
+async function exportWord(){
+  if(!state.rows.length){toast('Belum ada kegiatan untuk diekspor',true);return;}
+  if(!window.docx){toast('Library Word belum termuat — cek koneksi internet',true);return;}
+  save();toast('Menyusun file Word…');
+  try{
+    const D=window.docx;
+    const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,BorderStyle,VerticalAlign,ImageRun}=D;
+    const noBorder={top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}};
+    const noCellBorder={top:noBorder.top,bottom:noBorder.bottom,left:noBorder.left,right:noBorder.right};
+    const FONT='Calibri';
+    const txt=(t,o={})=>new TextRun(Object.assign({text:t,font:FONT,size:22},o));
+    const p=(runs,o={})=>new Paragraph(Object.assign({children:Array.isArray(runs)?runs:[runs]},o));
+    const id=state.id;
+
+    let logoBytes=null;
+    try{logoBytes=await fileBytes('kementan-logo.png');}catch(e){}
+    const logoImg=(w,h)=>logoBytes?new ImageRun({data:logoBytes,transformation:{width:w,height:h},type:'png'}):null;
+
+    /* ---- Cover page ---- */
+    const coverChildren=[
+      p([txt('LAPORAN PELAKSANAAN TUGAS DAN FUNGSI PENYULUH PERTANIAN',{bold:true,size:26})],{alignment:AlignmentType.CENTER,spacing:{before:400}}),
+      p([txt('Kegiatan Diseminasi Informasi Pertanian',{bold:true,size:24})],{alignment:AlignmentType.CENTER,spacing:{before:160}}),
+      p([txt((state.bulan||'')+' '+(state.tahun||''),{bold:true,size:22})],{alignment:AlignmentType.CENTER,spacing:{before:80,after:300}})
+    ];
+    if(logoImg(140,140))coverChildren.push(p([logoImg(140,140)],{alignment:AlignmentType.CENTER,spacing:{after:300}}));
+    coverChildren.push(
+      p([txt('OLEH:',{bold:true,size:24})],{alignment:AlignmentType.CENTER,spacing:{before:200}}),
+      p([txt(id.nama||'',{bold:true,size:24})],{alignment:AlignmentType.CENTER,spacing:{before:120}}),
+      p([txt('NIP. '+(id.nip||''),{size:22})],{alignment:AlignmentType.CENTER}),
+      p([txt('BALAI PENYULUHAN PERTANIAN',{bold:true,size:24})],{alignment:AlignmentType.CENTER,spacing:{before:500}}),
+      p([txt('KECAMATAN '+(id.kecamatan||'').toUpperCase(),{bold:true,size:24})],{alignment:AlignmentType.CENTER}),
+      p([txt('KABUPATEN '+(id.kabupaten||'').toUpperCase(),{bold:true,size:24})],{alignment:AlignmentType.CENTER}),
+      p([txt((id.provinsi||'').toUpperCase(),{bold:true,size:24})],{alignment:AlignmentType.CENTER}),
+      p([txt(state.tahun||'',{bold:true,size:24})],{alignment:AlignmentType.CENTER})
+    );
+
+    /* ---- helpers for entry pages ---- */
+    const kvTable=(rows)=>new Table({
+      width:{size:100,type:WidthType.PERCENTAGE},
+      columnWidths:[3200,300,6060],
+      rows:rows.map(r=>new TableRow({children:[
+        new TableCell({width:{size:34,type:WidthType.PERCENTAGE},borders:noCellBorder,children:[p([txt(r[0]||'')])]}),
+        new TableCell({width:{size:3,type:WidthType.PERCENTAGE},borders:noCellBorder,children:[p([txt(r[0]?':':'')])]}),
+        new TableCell({width:{size:63,type:WidthType.PERCENTAGE},borders:noCellBorder,children:[p([txt(r[1]||'')])]})
+      ]}))
+    });
+
+    const entryPages=[];
+    for(let i=0;i<state.rows.length;i++){
+      const r=state.rows[i];
+      const kids=[];
+      kids.push(p([txt('LAPORAN  KEGIATAN DISEMINASI INFORMASI PERTANIAN',{bold:true,size:24})],{alignment:AlignmentType.CENTER,pageBreakBefore:true,spacing:{after:80}}));
+      if(logoImg(46,46))kids.push(p([logoImg(46,46)],{alignment:AlignmentType.CENTER,spacing:{after:160}}));
+      kids.push(p([txt('Penyuluh Pertanian',{bold:true})],{spacing:{after:40}}));
+      kids.push(kvTable([
+        ['Nama dan NIP',(id.nama||'')+' / '+(id.nip||'')],
+        ['Pangkat/Golongan',id.pangkat||''],
+        ['Jabatan',id.jabatan||''],
+        ['Unit Kerja',id.unit||''],
+        ['','Kabupaten '+(id.kabupaten||'')]
+      ]));
+      kids.push(kvTable([
+        ['Dasar Pelaksanaan',id.dasar1||''],
+        ['',id.dasar2||''],
+        ['Materi Diseminasi',r.materi||'']
+      ]));
+      kids.push(p([txt('Pelaksanaan Kegiatan',{bold:true})],{spacing:{before:120,after:40}}));
+      kids.push(kvTable([
+        ['Waktu Pelaksanaan',fmtTanggalHari(r.tanggal)],
+        ['Tempat/Lokasi',r.tempat||''],
+        ['Metode',r.metode||''],
+        ['Peserta',r.peserta||''],
+        ['Hasil Kegiatan','Masalah :'],
+        ['',r.masalah||''],
+        ['','Solusi :'],
+        ['',r.solusi||'']
+      ]));
+      if(r.foto){
+        try{kids.push(p([await imgRunFromDataUrl(r.foto,380,260)],{alignment:AlignmentType.CENTER,spacing:{before:160,after:160}}));}catch(e){}
+      }
+      kids.push(p([txt((id.kecamatan||'')+', '+fmtTanggalOnly(r.tanggal))],{alignment:AlignmentType.RIGHT,spacing:{before:120}}));
+      kids.push(p([txt('Mengetahui,')],{spacing:{before:80}}));
+
+      const sigCellChildren=async(label,imgData,name,nip)=>{
+        const c=[p([txt(label)])];
+        if(imgData){try{c.push(p([await imgRunFromDataUrl(imgData,140,70)]));}catch(e){c.push(p([txt('')],{spacing:{before:400}}));}}
+        else c.push(p([txt('')],{spacing:{before:400}}));
+        c.push(p([txt(name||'',{bold:true})]));
+        c.push(p([txt('NIP. '+(nip||''))]));
+        return c;
+      };
+      const leftCell=await sigCellChildren('Koordinator '+(id.unit||'')+',',state.sig.koord,id.koordNama,id.koordNip);
+      const rightCell=await sigCellChildren('Penyuluh,',state.sig.penyuluh,id.nama,id.nip);
+      kids.push(new Table({
+        width:{size:100,type:WidthType.PERCENTAGE},
+        rows:[new TableRow({children:[
+          new TableCell({width:{size:50,type:WidthType.PERCENTAGE},borders:noCellBorder,children:leftCell}),
+          new TableCell({width:{size:50,type:WidthType.PERCENTAGE},borders:noCellBorder,children:rightCell})
+        ]})]
+      }));
+      entryPages.push(...kids);
+    }
+
+    const doc=new Document({
+      sections:[{
+        properties:{page:{margin:{top:900,bottom:900,left:1100,right:1100}}},
+        children:[...coverChildren,...entryPages]
+      }]
+    });
+    const blob=await Packer.toBlob(doc);
+    downloadBlob(blob,fileBase()+'.docx');
+    toast('File Word diunduh');
+  }catch(e){toast('Gagal membuat Word: '+e.message,true);}
+}
+
+/* ---------- reset / theme ---------- */
+function resetAll(){
+  if(!confirm('Kosongkan SEMUA isi data (identitas, pengesahan &amp; seluruh kegiatan)? Tindakan ini tidak bisa dibatalkan.'))return;
+  state={id:{},bulan:'',tahun:'',sig:{koord:null,penyuluh:null},rows:[]};
+  ID_FIELDS.forEach(k=>setVal(k,''));setVal('bulan',currentMonthName());setVal('tahun',String(new Date().getFullYear()));
+  render();renderSig();save();
+}
+function toggleTheme(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem('theme',document.body.classList.contains('dark')?'dark':'light');
+  updateThemeIcons();
+}
+function updateThemeIcons(){
+  const isDark=document.body.classList.contains('dark');
+  document.getElementById('sun').style.display=isDark?'block':'none';
+  document.getElementById('moon').style.display=isDark?'none':'block';
+}
+if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark');}
+updateThemeIcons();
+
+/* ---------- wiring ---------- */
+ID_FIELDS.forEach(k=>{const e=document.getElementById(k);if(e)e.addEventListener('input',save);});
+document.getElementById('bulan').addEventListener('change',save);
+document.getElementById('tahun').addEventListener('input',save);
+document.getElementById('unit').addEventListener('blur',function(){
+  let v=this.value.trim();
+  if(v && !v.toUpperCase().startsWith('BPP ')) v='BPP '+v;
+  this.value=v;save();
+});
+window.addRow=addRow;window.delRow=delRow;window.clearRows=clearRows;window.field=field;
+window.pickFoto=pickFoto;window.removeFoto=removeFoto;
+window.pickSig=pickSig;window.removeSig=removeSig;
+window.applyDefaults=applyDefaults;
+window.exportWord=exportWord;window.downloadPDF=downloadPDF;window.resetAll=resetAll;window.toggleTheme=toggleTheme;
+load();
+
+/* ---------- PWA service worker ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
