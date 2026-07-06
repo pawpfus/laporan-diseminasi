@@ -526,6 +526,7 @@ body{font-family:'Times New Roman',Times,serif;color:#000}
 .num-sub .col{width:12px;flex:0 0 12px}
 .num-sub .val{flex:1}
 .num-cont{font-size:12.5px;line-height:1.65;padding-left:214px}
+.num-gap{margin-top:20px}
 .foto-box{text-align:center;margin:14px 0}
 .foto-box img{max-width:420px;max-height:280px;object-fit:contain;border:0.5px solid #999;border-radius:4px}
 .sig-date{text-align:right;font-size:12.5px;margin-top:34px;color:#000}
@@ -536,8 +537,8 @@ body{font-family:'Times New Roman',Times,serif;color:#000}
 .sig-name{font-weight:700;margin-top:2px}
 .foot{position:absolute;left:42px;right:42px;bottom:26px;text-align:right;font-size:11px}
 `;
-function numHead(n,label){return `<div class="num-head"><span class="pfx">${n}.</span><span class="lbl">${esc(label)}</span></div>`;}
-function numMain(n,label,val){return `<div class="num-main"><span class="pfx">${n}.</span><span class="lbl">${esc(label)}</span><span class="col">:</span><span class="val">${esc(val||'')}</span></div>`;}
+function numHead(n,label,gap){return `<div class="num-head${gap?' num-gap':''}"><span class="pfx">${n}.</span><span class="lbl">${esc(label)}</span></div>`;}
+function numMain(n,label,val,gap){return `<div class="num-main${gap?' num-gap':''}"><span class="pfx">${n}.</span><span class="lbl">${esc(label)}</span><span class="col">:</span><span class="val">${esc(val||'')}</span></div>`;}
 function numSub(letter,label,val){return `<div class="num-sub"><span class="pfx">${letter}.</span><span class="lbl">${esc(label)}</span><span class="col">:</span><span class="val">${esc(val||'')}</span></div>`;}
 function numCont(val){return `<div class="num-cont">${esc(val||'')}</div>`;}
 function pdfEntryHTML(r,idx){
@@ -550,15 +551,15 @@ function pdfEntryHTML(r,idx){
     ${numSub('c','Jabatan',id.jabatan)}
     ${numSub('d','Unit Kerja',id.unit)}
     ${numCont('Kabupaten '+(id.kabupaten||''))}
-    ${numMain(2,'Dasar Pelaksanaan',id.dasar1)}
+    ${numMain(2,'Dasar Pelaksanaan',id.dasar1,true)}
     ${numCont(id.dasar2)}
-    ${numMain(3,'Materi Diseminasi',r.materi)}
-    ${numHead(4,'Pelaksanaan Kegiatan')}
+    ${numMain(3,'Materi Diseminasi',r.materi,true)}
+    ${numHead(4,'Pelaksanaan Kegiatan',true)}
     ${numSub('a','Waktu Pelaksanaan',fmtTanggalHari(r.tanggal))}
     ${numSub('b','Tempat/Lokasi',r.tempat)}
     ${numSub('c','Metode',r.metode)}
     ${numSub('d','Peserta',r.peserta)}
-    ${numMain(5,'Hasil Kegiatan','Masalah :')}
+    ${numMain(5,'Hasil Kegiatan','Masalah :',true)}
     ${numCont(r.masalah)}
     ${numCont('Solusi :')}
     ${numCont(r.solusi)}
@@ -628,10 +629,10 @@ async function exportWord(){
     const TAB2=5040;   // left signature column -> right signature column
     const NUM_IND=260,SUB_IND=680; // numbering indents (twips)
 
-    /* numbered heading line, e.g. "1. Penyuluh Pertanian" (no colon/value) */
-    const numHead=(ref,label)=>p([txt(label)],{numbering:{reference:ref,level:0}});
-    /* numbered "label : value" line, aligned via a single tab stop (no table) */
-    const numKV=(ref,label,value)=>p([txt(label),txt('\t:  '+(value||''))],{numbering:{reference:ref,level:0},tabStops:[{type:TabStopType.LEFT,position:TAB1}]});
+    /* numbered heading line, e.g. "1. Penyuluh Pertanian" (no colon/value); gap=true adds a blank line before it */
+    const numHead=(ref,label,gap)=>p([txt(label)],{numbering:{reference:ref,level:0},spacing:gap?{before:240}:undefined});
+    /* numbered "label : value" line, aligned via a single tab stop (no table); gap=true adds a blank line before it */
+    const numKV=(ref,label,value,gap)=>p([txt(label),txt('\t:  '+(value||''))],{numbering:{reference:ref,level:0},tabStops:[{type:TabStopType.LEFT,position:TAB1}],spacing:gap?{before:240}:undefined});
     /* continuation line, indented to the value column, no number/label */
     const cont=(value)=>p([txt(value||'')],{indent:{left:TAB1}});
     /* two values on one line separated by a tab (used for the signature block) */
@@ -662,16 +663,16 @@ async function exportWord(){
       kids.push(numKV('subA'+i,'Jabatan',id.jabatan||''));
       kids.push(numKV('subA'+i,'Unit Kerja',id.unit||''));
       kids.push(cont('Kabupaten '+(id.kabupaten||'')));
-      kids.push(numKV('main'+i,'Dasar Pelaksanaan',id.dasar1||''));
+      kids.push(numKV('main'+i,'Dasar Pelaksanaan',id.dasar1||'',true));
       kids.push(cont(id.dasar2||''));
-      kids.push(numKV('main'+i,'Materi Diseminasi',r.materi||''));
+      kids.push(numKV('main'+i,'Materi Diseminasi',r.materi||'',true));
 
-      kids.push(numHead('main'+i,'Pelaksanaan Kegiatan'));
+      kids.push(numHead('main'+i,'Pelaksanaan Kegiatan',true));
       kids.push(numKV('subB'+i,'Waktu Pelaksanaan',fmtTanggalHari(r.tanggal)));
       kids.push(numKV('subB'+i,'Tempat/Lokasi',r.tempat||''));
       kids.push(numKV('subB'+i,'Metode',r.metode||''));
       kids.push(numKV('subB'+i,'Peserta',r.peserta||''));
-      kids.push(numKV('main'+i,'Hasil Kegiatan','Masalah :'));
+      kids.push(numKV('main'+i,'Hasil Kegiatan','Masalah :',true));
       kids.push(cont(r.masalah||''));
       kids.push(cont('Solusi :'));
       kids.push(cont(r.solusi||''));
