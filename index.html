@@ -199,6 +199,8 @@
     .spacer{display:none}
     .logo{width:34px;height:34px;border-radius:9px}
     .btn{padding:8px 10px;font-size:12px;flex:1 1 auto;justify-content:center}
+    .btn-reset{width:36px;height:36px;padding:0;border-radius:50%;justify-content:center;flex:0 0 auto}
+    .btn-reset .btn-lbl{display:none}
     .entry-fields{grid-template-columns:1fr 1fr}
     /* 16px inputs prevent iOS auto-zoom on focus */
     input,select,textarea{font-size:16px}
@@ -211,6 +213,7 @@
     .del-btn{margin:10px 8px 0 0}
     .btn{padding:8px 10px}
     .btn svg{width:15px;height:15px}
+    .btn-reset{width:34px;height:34px}
     .foto-wrap{max-width:100%}
   }
   @media print{.topbar,.wrap,.toast{display:none!important}}
@@ -230,8 +233,8 @@
       <svg id="sun" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
       <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
     </button>
-    <button class="btn btn-ghost" onclick="resetAll()" title="Mulai dari awal">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Reset
+    <button class="btn btn-ghost btn-reset" onclick="resetAll()" title="Mulai dari awal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span class="btn-lbl">Reset</span>
     </button>
     <button class="btn btn-word" onclick="exportWord()" title="Unduh file Word (.docx)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 13 1.5 5 1.5-4 1.5 4L16 13"/></svg>Word
@@ -248,7 +251,7 @@
   <div class="card">
     <div class="card-head">
       <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-      <div><h2>Identitas Penyuluh &amp; Instansi</h2><p>Header sampul dan setiap lembar laporan</p></div>
+      <div><h2>Identitas Penyuluh &amp; Instansi</h2><p>Header setiap lembar laporan</p></div>
       <span class="step">LANGKAH 1</span>
     </div>
     <div class="card-body">
@@ -266,15 +269,6 @@
         <div class="field"><label>Kecamatan</label><input type="text" id="kecamatan" placeholder="Kecamatan"></div>
         <div class="field"><label>Kabupaten</label><input type="text" id="kabupaten" placeholder="Kabupaten"></div>
         <div class="field"><label>Provinsi</label><input type="text" id="provinsi" placeholder="Provinsi"></div>
-        <div class="field">
-          <label>Bulan (sampul)</label>
-          <select id="bulan">
-            <option>JANUARI</option><option>FEBRUARI</option><option>MARET</option><option>APRIL</option>
-            <option>MEI</option><option>JUNI</option><option>JULI</option><option>AGUSTUS</option>
-            <option>SEPTEMBER</option><option>OKTOBER</option><option>NOVEMBER</option><option>DESEMBER</option>
-          </select>
-        </div>
-        <div class="field"><label>Tahun (sampul)</label><input type="text" id="tahun" placeholder="2026"></div>
         <div class="field full"><label>Dasar Pelaksanaan (baris 1)</label><input type="text" id="dasar1" placeholder="Programa Penyuluhan Pertanian ..."></div>
         <div class="field full"><label>Dasar Pelaksanaan (baris 2)</label><input type="text" id="dasar2" placeholder="Rencana Kerja Penyuluh Pertanian Tahun ..."></div>
       </div>
@@ -368,7 +362,7 @@ const DEFAULTS={
 const ID_FIELDS=Object.keys(DEFAULTS);
 const METODE=['Kunjungan','Diskusi','Pertemuan','Penyuluhan/Ceramah','Demonstrasi','Sosialisasi','Lainnya'];
 const KEY='laporan_diseminasi_v1';
-let state={id:{},bulan:'',tahun:'',sig:{koord:null,penyuluh:null},rows:[]};
+let state={id:{},sig:{koord:null,penyuluh:null},rows:[]};
 let pendingFoto=null; // rid
 let pendingSig=null;  // 'koord'|'penyuluh'
 
@@ -377,25 +371,21 @@ function val(id){const e=document.getElementById(id);return e?e.value:'';}
 function setVal(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
 function save(){
   state.id={};ID_FIELDS.forEach(k=>state.id[k]=val(k));
-  state.bulan=val('bulan');state.tahun=val('tahun');
   try{localStorage.setItem(KEY,JSON.stringify(state));flashSave();}
   catch(e){toast('Penyimpanan penuh (gambar terlalu besar)',true);}
 }
 function load(){
   let raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
-  if(raw){try{state=JSON.parse(raw);}catch(e){state={id:{},bulan:'',tahun:'',sig:{koord:null,penyuluh:null},rows:[]};}}
+  if(raw){try{state=JSON.parse(raw);}catch(e){state={id:{},sig:{koord:null,penyuluh:null},rows:[]};}}
   if(!state.id)state.id={};
   if(!state.sig)state.sig={koord:null,penyuluh:null};
   if(!Array.isArray(state.rows))state.rows=[];
   const haveAny=Object.keys(state.id).length;
   ID_FIELDS.forEach(k=>setVal(k,haveAny?(state.id[k]??''):DEFAULTS[k]));
-  setVal('bulan',state.bulan||currentMonthName());
-  setVal('tahun',state.tahun||String(new Date().getFullYear()));
   render();renderSig();
 }
 function applyDefaults(){
   ID_FIELDS.forEach(k=>setVal(k,DEFAULTS[k]));
-  setVal('bulan',currentMonthName());setVal('tahun',String(new Date().getFullYear()));
   save();toast('Data default dimuat');
 }
 let saveTimer=null;
@@ -507,7 +497,6 @@ const dimsOf=u=>dimCache[u]||(dimCache[u]=new Promise(res=>{const im=new Image()
 /* ---------- helpers ---------- */
 const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAYS=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-function currentMonthName(){return MONTHS[new Date().getMonth()].toUpperCase();}
 function fmtTanggalHari(v){
   if(!v)return '';
   const m=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -523,16 +512,6 @@ function fmtTanggalOnly(v){
 }
 function todayId(){const d=new Date();return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
 function fileBase(){return ('Laporan Diseminasi '+todayId()).replace(/\s+/g,' ').trim();}
-function idBlockRows(){
-  const id=state.id;
-  return [
-    ['Nama dan NIP',id.nama+' / '+id.nip],
-    ['Pangkat/Golongan',id.pangkat],
-    ['Jabatan',id.jabatan],
-    ['Unit Kerja',id.unit],
-    ['__cont__','Kabupaten '+(id.kabupaten||'')]
-  ];
-}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(err?' err':'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2600);}
 function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},200);}
@@ -547,15 +526,6 @@ body{font-family:'Instrument Sans',sans-serif;color:#000}
 @page{size:A4;margin:0}
 .sheet{width:794px;min-height:1123px;padding:49px 42px 60px;position:relative;page-break-after:always;overflow:hidden}
 .sheet:last-child{page-break-after:auto}
-.cover{text-align:center;padding-top:40px}
-.cover .t1{font-weight:700;font-size:16px;line-height:1.4;margin:0 30px}
-.cover .t2{font-weight:700;font-size:14px;margin-top:18px}
-.cover .t3{font-weight:600;font-size:13px;margin-top:4px}
-.cover .logo{width:120px;height:120px;object-fit:contain;margin:26px auto}
-.cover .oleh{font-size:13px;font-weight:700;margin-top:26px}
-.cover .nama{font-size:14px;font-weight:700;margin-top:10px}
-.cover .nip{font-size:12.5px;margin-top:2px}
-.cover .inst{font-size:13px;font-weight:700;margin-top:40px;line-height:1.7}
 .banner{text-align:center;padding:2px 10px 12px;margin-bottom:10px}
 .banner .t1{font-weight:700;font-size:14.5px;letter-spacing:.2px;line-height:1.3}
 .banner img{width:44px;height:44px;object-fit:contain;margin:6px auto 0;display:block}
@@ -566,33 +536,14 @@ body{font-family:'Instrument Sans',sans-serif;color:#000}
 .sec-label{font-weight:700;font-size:12.5px;margin-top:8px}
 .foto-box{text-align:center;margin:14px 0}
 .foto-box img{max-width:420px;max-height:280px;object-fit:contain;border:0.5px solid #999;border-radius:4px}
-.sigtab{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:18px}
-.sigtab td{width:50%;vertical-align:top;padding:2px 8px}
-.sig-date{text-align:right;font-size:12.5px}
+.sig-date{text-align:right;font-size:12.5px;margin-top:18px}
+.sig-row2{display:flex;font-size:12.5px;margin-top:2px}
+.sig-col{width:50%;vertical-align:top}
 .sig-img{height:70px;display:flex;align-items:center}
 .sig-img img{max-height:65px;max-width:180px;object-fit:contain}
 .sig-name{font-weight:700;margin-top:2px}
 .foot{position:absolute;left:42px;right:42px;bottom:26px;text-align:right;font-size:11px}
 `;
-function pdfCoverHTML(){
-  const id=state.id;
-  return `<div class="sheet cover">
-    <div class="t1">LAPORAN PELAKSANAAN TUGAS DAN FUNGSI PENYULUH PERTANIAN</div>
-    <div class="t2">Kegiatan Diseminasi Informasi Pertanian</div>
-    <div class="t3">${esc(state.bulan||'')} ${esc(state.tahun||'')}</div>
-    <img class="logo" src="kementan-logo.png">
-    <div class="oleh">OLEH:</div>
-    <div class="nama">${esc(id.nama||'')}</div>
-    <div class="nip">NIP. ${esc(id.nip||'')}</div>
-    <div class="inst">
-      BALAI PENYULUHAN PERTANIAN<br>
-      KECAMATAN ${esc((id.kecamatan||'').toUpperCase())}<br>
-      KABUPATEN ${esc((id.kabupaten||'').toUpperCase())}<br>
-      ${esc((id.provinsi||'').toUpperCase())}<br>
-      ${esc(state.tahun||'')}
-    </div>
-  </div>`;
-}
 function pIdRow(k,v,cont){return `<div class="p-id${cont?' cont':''}">${cont?'':`<span class="k">${esc(k)}</span><span class="c">:</span>`}<span class="v">${esc(v||'')}</span></div>`;}
 function pdfEntryHTML(r,idx){
   const id=state.id;
@@ -618,13 +569,11 @@ function pdfEntryHTML(r,idx){
     ${pIdRow('',r.solusi,true)}
     ${r.foto?`<div class="foto-box"><img src="${r.foto}"></div>`:''}
     <div class="sig-date">${esc(id.kecamatan||'')}, ${esc(fmtTanggalOnly(r.tanggal))}</div>
-    <table class="sigtab"><tbody>
-      <tr><td>Mengetahui,</td><td></td></tr>
-      <tr><td>Koordinator ${esc(id.unit||'')},</td><td>Penyuluh,</td></tr>
-      <tr><td class="sig-img">${state.sig.koord?`<img src="${state.sig.koord}">`:''}</td><td class="sig-img">${state.sig.penyuluh?`<img src="${state.sig.penyuluh}">`:''}</td></tr>
-      <tr><td class="sig-name">${esc(id.koordNama||'')}</td><td class="sig-name">${esc(id.nama||'')}</td></tr>
-      <tr><td>NIP. ${esc(id.koordNip||'')}</td><td>NIP. ${esc(id.nip||'')}</td></tr>
-    </tbody></table>
+    <div class="sig-row2"><div class="sig-col">Mengetahui,</div><div class="sig-col"></div></div>
+    <div class="sig-row2"><div class="sig-col">Koordinator ${esc(id.unit||'')},</div><div class="sig-col">Penyuluh,</div></div>
+    <div class="sig-row2"><div class="sig-col sig-img">${state.sig.koord?`<img src="${state.sig.koord}">`:''}</div><div class="sig-col sig-img">${state.sig.penyuluh?`<img src="${state.sig.penyuluh}">`:''}</div></div>
+    <div class="sig-row2"><div class="sig-col sig-name">${esc(id.koordNama||'')}</div><div class="sig-col sig-name">${esc(id.nama||'')}</div></div>
+    <div class="sig-row2"><div class="sig-col">NIP. ${esc(id.koordNip||'')}</div><div class="sig-col">NIP. ${esc(id.nip||'')}</div></div>
     <div class="foot">Laporan Diseminasi · kegiatan ${idx+1}</div>
   </div>`;
 }
@@ -633,7 +582,7 @@ async function downloadPDF(){
   if(!state.rows.length){toast('Belum ada kegiatan untuk diunduh',true);return;}
   if(typeof html2canvas==='undefined'||!window.jspdf){toast('Library PDF belum termuat — cek koneksi internet',true);return;}
   save();toast('Membuat file PDF…');
-  const sheets=pdfCoverHTML()+state.rows.map((r,i)=>pdfEntryHTML(r,i)).join('');
+  const sheets=state.rows.map((r,i)=>pdfEntryHTML(r,i)).join('');
   const holder=document.createElement('div');
   holder.style.cssText='position:fixed;left:-10000px;top:0;background:#fff';
   holder.innerHTML=`<style>${PRINT_CSS}</style>${sheets}`;
@@ -674,107 +623,77 @@ async function exportWord(){
   save();toast('Menyusun file Word…');
   try{
     const D=window.docx;
-    const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,BorderStyle,VerticalAlign,ImageRun}=D;
-    const noBorder={top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}};
-    const noCellBorder={top:noBorder.top,bottom:noBorder.bottom,left:noBorder.left,right:noBorder.right};
+    const {Document,Packer,Paragraph,TextRun,AlignmentType,TabStopType,ImageRun}=D;
     const FONT='Calibri';
     const txt=(t,o={})=>new TextRun(Object.assign({text:t,font:FONT,size:22},o));
     const p=(runs,o={})=>new Paragraph(Object.assign({children:Array.isArray(runs)?runs:[runs]},o));
     const id=state.id;
 
+    // tab positions (twips) mirroring the reference document's own tab stops
+    const TAB1=2977;   // label column -> value column
+    const TAB2=5040;   // left signature column -> right signature column
+
+    /* key : value line, aligned via a single tab stop (no table) */
+    const kv=(label,value)=>p([txt(label),txt('\t:  '+(value||''))],{tabStops:[{type:TabStopType.LEFT,position:TAB1}]});
+    /* continuation line, indented to the value column, no label */
+    const cont=(value)=>p([txt(value||'')],{indent:{left:TAB1}});
+    /* two values on one line separated by a tab (used for the signature block) */
+    const twoCol=(runsLeft,runsRight)=>p([...runsLeft,txt('\t'),...runsRight],{tabStops:[{type:TabStopType.LEFT,position:TAB2}]});
+
     let logoBytes=null;
     try{logoBytes=await fileBytes('kementan-logo.png');}catch(e){}
     const logoImg=(w,h)=>logoBytes?new ImageRun({data:logoBytes,transformation:{width:w,height:h},type:'png'}):null;
-
-    /* ---- Cover page ---- */
-    const coverChildren=[
-      p([txt('LAPORAN PELAKSANAAN TUGAS DAN FUNGSI PENYULUH PERTANIAN',{bold:true,size:26})],{alignment:AlignmentType.CENTER,spacing:{before:400}}),
-      p([txt('Kegiatan Diseminasi Informasi Pertanian',{bold:true,size:24})],{alignment:AlignmentType.CENTER,spacing:{before:160}}),
-      p([txt((state.bulan||'')+' '+(state.tahun||''),{bold:true,size:22})],{alignment:AlignmentType.CENTER,spacing:{before:80,after:300}})
-    ];
-    if(logoImg(140,140))coverChildren.push(p([logoImg(140,140)],{alignment:AlignmentType.CENTER,spacing:{after:300}}));
-    coverChildren.push(
-      p([txt('OLEH:',{bold:true,size:24})],{alignment:AlignmentType.CENTER,spacing:{before:200}}),
-      p([txt(id.nama||'',{bold:true,size:24})],{alignment:AlignmentType.CENTER,spacing:{before:120}}),
-      p([txt('NIP. '+(id.nip||''),{size:22})],{alignment:AlignmentType.CENTER}),
-      p([txt('BALAI PENYULUHAN PERTANIAN',{bold:true,size:24})],{alignment:AlignmentType.CENTER,spacing:{before:500}}),
-      p([txt('KECAMATAN '+(id.kecamatan||'').toUpperCase(),{bold:true,size:24})],{alignment:AlignmentType.CENTER}),
-      p([txt('KABUPATEN '+(id.kabupaten||'').toUpperCase(),{bold:true,size:24})],{alignment:AlignmentType.CENTER}),
-      p([txt((id.provinsi||'').toUpperCase(),{bold:true,size:24})],{alignment:AlignmentType.CENTER}),
-      p([txt(state.tahun||'',{bold:true,size:24})],{alignment:AlignmentType.CENTER})
-    );
-
-    /* ---- helpers for entry pages ---- */
-    const kvTable=(rows)=>new Table({
-      width:{size:100,type:WidthType.PERCENTAGE},
-      columnWidths:[3200,300,6060],
-      rows:rows.map(r=>new TableRow({children:[
-        new TableCell({width:{size:34,type:WidthType.PERCENTAGE},borders:noCellBorder,children:[p([txt(r[0]||'')])]}),
-        new TableCell({width:{size:3,type:WidthType.PERCENTAGE},borders:noCellBorder,children:[p([txt(r[0]?':':'')])]}),
-        new TableCell({width:{size:63,type:WidthType.PERCENTAGE},borders:noCellBorder,children:[p([txt(r[1]||'')])]})
-      ]}))
-    });
 
     const entryPages=[];
     for(let i=0;i<state.rows.length;i++){
       const r=state.rows[i];
       const kids=[];
-      kids.push(p([txt('LAPORAN  KEGIATAN DISEMINASI INFORMASI PERTANIAN',{bold:true,size:24})],{alignment:AlignmentType.CENTER,pageBreakBefore:true,spacing:{after:80}}));
+      kids.push(p([txt('LAPORAN  KEGIATAN DISEMINASI INFORMASI PERTANIAN',{bold:true,size:24})],{alignment:AlignmentType.CENTER,pageBreakBefore:i>0,spacing:{after:80}}));
       if(logoImg(46,46))kids.push(p([logoImg(46,46)],{alignment:AlignmentType.CENTER,spacing:{after:160}}));
+
       kids.push(p([txt('Penyuluh Pertanian',{bold:true})],{spacing:{after:40}}));
-      kids.push(kvTable([
-        ['Nama dan NIP',(id.nama||'')+' / '+(id.nip||'')],
-        ['Pangkat/Golongan',id.pangkat||''],
-        ['Jabatan',id.jabatan||''],
-        ['Unit Kerja',id.unit||''],
-        ['','Kabupaten '+(id.kabupaten||'')]
-      ]));
-      kids.push(kvTable([
-        ['Dasar Pelaksanaan',id.dasar1||''],
-        ['',id.dasar2||''],
-        ['Materi Diseminasi',r.materi||'']
-      ]));
+      kids.push(kv('Nama dan NIP',(id.nama||'')+' / '+(id.nip||'')));
+      kids.push(kv('Pangkat/Golongan',id.pangkat||''));
+      kids.push(kv('Jabatan',id.jabatan||''));
+      kids.push(kv('Unit Kerja',id.unit||''));
+      kids.push(cont('Kabupaten '+(id.kabupaten||'')));
+      kids.push(kv('Dasar Pelaksanaan',id.dasar1||''));
+      kids.push(cont(id.dasar2||''));
+      kids.push(kv('Materi Diseminasi',r.materi||''));
+
       kids.push(p([txt('Pelaksanaan Kegiatan',{bold:true})],{spacing:{before:120,after:40}}));
-      kids.push(kvTable([
-        ['Waktu Pelaksanaan',fmtTanggalHari(r.tanggal)],
-        ['Tempat/Lokasi',r.tempat||''],
-        ['Metode',r.metode||''],
-        ['Peserta',r.peserta||''],
-        ['Hasil Kegiatan','Masalah :'],
-        ['',r.masalah||''],
-        ['','Solusi :'],
-        ['',r.solusi||'']
-      ]));
+      kids.push(kv('Waktu Pelaksanaan',fmtTanggalHari(r.tanggal)));
+      kids.push(kv('Tempat/Lokasi',r.tempat||''));
+      kids.push(kv('Metode',r.metode||''));
+      kids.push(kv('Peserta',r.peserta||''));
+      kids.push(kv('Hasil Kegiatan','Masalah :'));
+      kids.push(cont(r.masalah||''));
+      kids.push(cont('Solusi :'));
+      kids.push(cont(r.solusi||''));
+
       if(r.foto){
         try{kids.push(p([await imgRunFromDataUrl(r.foto,380,260)],{alignment:AlignmentType.CENTER,spacing:{before:160,after:160}}));}catch(e){}
       }
+
       kids.push(p([txt((id.kecamatan||'')+', '+fmtTanggalOnly(r.tanggal))],{alignment:AlignmentType.RIGHT,spacing:{before:120}}));
       kids.push(p([txt('Mengetahui,')],{spacing:{before:80}}));
+      kids.push(twoCol([txt('Koordinator '+(id.unit||'')+',')],[txt('Penyuluh,')]));
 
-      const sigCellChildren=async(label,imgData,name,nip)=>{
-        const c=[p([txt(label)])];
-        if(imgData){try{c.push(p([await imgRunFromDataUrl(imgData,140,70)]));}catch(e){c.push(p([txt('')],{spacing:{before:400}}));}}
-        else c.push(p([txt('')],{spacing:{before:400}}));
-        c.push(p([txt(name||'',{bold:true})]));
-        c.push(p([txt('NIP. '+(nip||''))]));
-        return c;
-      };
-      const leftCell=await sigCellChildren('Koordinator '+(id.unit||'')+',',state.sig.koord,id.koordNama,id.koordNip);
-      const rightCell=await sigCellChildren('Penyuluh,',state.sig.penyuluh,id.nama,id.nip);
-      kids.push(new Table({
-        width:{size:100,type:WidthType.PERCENTAGE},
-        rows:[new TableRow({children:[
-          new TableCell({width:{size:50,type:WidthType.PERCENTAGE},borders:noCellBorder,children:leftCell}),
-          new TableCell({width:{size:50,type:WidthType.PERCENTAGE},borders:noCellBorder,children:rightCell})
-        ]})]
-      }));
+      let koordImg=null,penyuluhImg=null;
+      if(state.sig.koord){try{koordImg=await imgRunFromDataUrl(state.sig.koord,140,70);}catch(e){}}
+      if(state.sig.penyuluh){try{penyuluhImg=await imgRunFromDataUrl(state.sig.penyuluh,140,70);}catch(e){}}
+      kids.push(p([koordImg||txt(''),txt('\t'),penyuluhImg||txt('')],{tabStops:[{type:TabStopType.LEFT,position:TAB2}],spacing:{before:200}}));
+
+      kids.push(twoCol([txt(id.koordNama||'',{bold:true})],[txt(id.nama||'',{bold:true})]));
+      kids.push(twoCol([txt('NIP. '+(id.koordNip||''))],[txt('NIP. '+(id.nip||''))]));
+
       entryPages.push(...kids);
     }
 
     const doc=new Document({
       sections:[{
         properties:{page:{margin:{top:900,bottom:900,left:1100,right:1100}}},
-        children:[...coverChildren,...entryPages]
+        children:entryPages
       }]
     });
     const blob=await Packer.toBlob(doc);
@@ -786,8 +705,8 @@ async function exportWord(){
 /* ---------- reset / theme ---------- */
 function resetAll(){
   if(!confirm('Kosongkan SEMUA isi data (identitas, pengesahan &amp; seluruh kegiatan)? Tindakan ini tidak bisa dibatalkan.'))return;
-  state={id:{},bulan:'',tahun:'',sig:{koord:null,penyuluh:null},rows:[]};
-  ID_FIELDS.forEach(k=>setVal(k,''));setVal('bulan',currentMonthName());setVal('tahun',String(new Date().getFullYear()));
+  state={id:{},sig:{koord:null,penyuluh:null},rows:[]};
+  ID_FIELDS.forEach(k=>setVal(k,''));
   render();renderSig();save();
 }
 function toggleTheme(){
@@ -805,8 +724,6 @@ updateThemeIcons();
 
 /* ---------- wiring ---------- */
 ID_FIELDS.forEach(k=>{const e=document.getElementById(k);if(e)e.addEventListener('input',save);});
-document.getElementById('bulan').addEventListener('change',save);
-document.getElementById('tahun').addEventListener('input',save);
 document.getElementById('unit').addEventListener('blur',function(){
   let v=this.value.trim();
   if(v && !v.toUpperCase().startsWith('BPP ')) v='BPP '+v;
