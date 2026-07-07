@@ -176,6 +176,7 @@
   .sugg-tag{font-size:10px;font-weight:700;color:var(--moss);text-transform:uppercase;letter-spacing:.3px;margin-top:5px}
   .sugg-tag:first-child{margin-top:0}
   .sugg-txt{font-size:12.5px;color:var(--ink);line-height:1.45}
+  .sugg-card-simple{font-size:12.5px;color:var(--ink)}
   .foto-wrap{max-width:260px}
   .ev-slot{border:1.5px dashed #cdded5;border-radius:11px;background:var(--soft);min-height:120px;position:relative;overflow:hidden;cursor:pointer;transition:.15s;display:grid;place-items:center}
   .ev-slot:hover{border-color:var(--moss);background:var(--moss-4)}
@@ -455,6 +456,22 @@ function matchSuggestGroups(materi){
   const hits=SUGGEST_BANK.filter(g=>g.keywords.some(k=>t.includes(k)));
   return hits.length?hits:[SUGGEST_GENERIC];
 }
+function positionPopover(pop,anchorEl){
+  document.body.appendChild(pop);
+  const btn=anchorEl.getBoundingClientRect();
+  const popW=Math.min(380,window.innerWidth*0.92);
+  pop.style.width=popW+'px';
+  let left=btn.left;
+  if(left+popW>window.innerWidth-10)left=window.innerWidth-popW-10;
+  if(left<10)left=10;
+  const top=btn.bottom+8;
+  const maxH=window.innerHeight-top-16;
+  pop.style.maxHeight=Math.max(180,maxH)+'px';
+  pop.style.left=left+'px';
+  pop.style.top=top+'px';
+}
+function closeAllPopovers(){closeSuggest();closeMateriPicker();}
+
 let suggestState=null;
 function onSuggestOutsideClick(e){const pop=document.getElementById('suggestPop');if(pop&&!pop.contains(e.target))closeSuggest();}
 function onSuggestKeydown(e){if(e.key==='Escape')closeSuggest();}
@@ -466,7 +483,7 @@ function closeSuggest(){
 }
 function openSuggest(ev,rid){
   ev.stopPropagation();
-  closeSuggest();
+  closeAllPopovers();
   const r=state.rows.find(x=>x.rid===rid);
   if(!r)return;
   const groups=matchSuggestGroups(r.materi);
@@ -483,18 +500,7 @@ function openSuggest(ev,rid){
   const pop=document.createElement('div');
   pop.id='suggestPop';pop.className='sugg-pop';
   pop.innerHTML=`<div class="sugg-head">Pilih Saran Masalah &amp; Solusi<button type="button" class="sugg-close" onclick="closeSuggest()">&times;</button></div><div class="sugg-body">${body}</div>`;
-  document.body.appendChild(pop);
-  const btn=ev.currentTarget.getBoundingClientRect();
-  const popW=Math.min(380,window.innerWidth*0.92);
-  pop.style.width=popW+'px';
-  let left=btn.left;
-  if(left+popW>window.innerWidth-10)left=window.innerWidth-popW-10;
-  if(left<10)left=10;
-  const top=btn.bottom+8;
-  const maxH=window.innerHeight-top-16;
-  pop.style.maxHeight=Math.max(180,maxH)+'px';
-  pop.style.left=left+'px';
-  pop.style.top=top+'px';
+  positionPopover(pop,ev.currentTarget);
   setTimeout(()=>{
     document.addEventListener('click',onSuggestOutsideClick,true);
     document.addEventListener('keydown',onSuggestKeydown,true);
@@ -510,6 +516,53 @@ function applySuggest(gi,oi){
   r.masalah=opt.masalah;r.solusi=opt.solusi;
   save();render();closeSuggest();
   toast('Saran diterapkan ke Masalah & Solusi');
+}
+
+/* ---------- pilihan Materi Diseminasi ---------- */
+const MATERI_OPTIONS=[
+  'Pemupukan Berimbang pada Tanaman Padi',
+  'Pengendalian Hama Terpadu (PHT) Wereng Batang Coklat',
+  'Penggunaan Benih Unggul Bersertifikat',
+  'Pengelolaan Air Irigasi Tersier',
+  'Penanganan Pascapanen Padi',
+  'Pemasaran Hasil Pertanian melalui Kelembagaan Tani',
+  'Penguatan Kelembagaan Kelompok Tani',
+  'Pengoperasian dan Pemeliharaan Alat Mesin Pertanian (Alsintan)',
+  'Pemanfaatan Kalender Tanam Terpadu (KATAM)',
+  'Pendampingan Survei Kerangka Sampel Area (KSA)',
+  'Pemanfaatan Pekarangan melalui Program Pekarangan Pangan Lestari (P2L)',
+  'Sosialisasi Programa Penyuluhan Pertanian',
+  'Penyusunan Rencana Kerja Penyuluh Pertanian (RKPP)'
+];
+let materiPickerRid=null;
+function onMateriOutsideClick(e){const pop=document.getElementById('materiPop');if(pop&&!pop.contains(e.target))closeMateriPicker();}
+function onMateriKeydown(e){if(e.key==='Escape')closeMateriPicker();}
+function closeMateriPicker(){
+  const el=document.getElementById('materiPop');if(el)el.remove();
+  document.removeEventListener('click',onMateriOutsideClick,true);
+  document.removeEventListener('keydown',onMateriKeydown,true);
+  materiPickerRid=null;
+}
+function openMateriPicker(ev,rid){
+  ev.stopPropagation();
+  closeAllPopovers();
+  materiPickerRid=rid;
+  const body=`<div class="sugg-group">${MATERI_OPTIONS.map((m,i)=>`<button type="button" class="sugg-card sugg-card-simple" onclick="applyMateri(${i})">${esc(m)}</button>`).join('')}</div>`;
+  const pop=document.createElement('div');
+  pop.id='materiPop';pop.className='sugg-pop';
+  pop.innerHTML=`<div class="sugg-head">Pilih Materi Diseminasi<button type="button" class="sugg-close" onclick="closeMateriPicker()">&times;</button></div><div class="sugg-body">${body}</div>`;
+  positionPopover(pop,ev.currentTarget);
+  setTimeout(()=>{
+    document.addEventListener('click',onMateriOutsideClick,true);
+    document.addEventListener('keydown',onMateriKeydown,true);
+  },0);
+}
+function applyMateri(i){
+  if(materiPickerRid==null)return;
+  const r=state.rows.find(x=>x.rid===materiPickerRid);
+  if(!r)return;
+  r.materi=MATERI_OPTIONS[i]||'';
+  save();render();closeMateriPicker();
 }
 
 function render(){
@@ -529,7 +582,16 @@ function render(){
             <div class="field-sm"><label>Metode</label><select onchange="field('${r.rid}','metode',this.value)">${opts}</select></div>
             <div class="field-sm"><label>Tempat/Lokasi</label><input type="text" value="${esc(r.tempat)}" placeholder="Lokasi kegiatan" onchange="field('${r.rid}','tempat',this.value)"></div>
           </div>
-          <div class="field-sm"><label>Materi Diseminasi</label><input type="text" value="${esc(r.materi)}" placeholder="Judul / topik diseminasi" onchange="field('${r.rid}','materi',this.value)"></div>
+          <div class="field-sm">
+            <div class="row2-head">
+              <label>Materi Diseminasi</label>
+              <button type="button" class="btn-suggest" onclick="openMateriPicker(event,'${r.rid}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+                Pilih Materi
+              </button>
+            </div>
+            <input type="text" value="${esc(r.materi)}" placeholder="Judul / topik diseminasi" onchange="field('${r.rid}','materi',this.value)">
+          </div>
           <div class="field-sm"><label>Peserta</label><input type="text" value="${esc(r.peserta)}" placeholder="contoh: Kelompok Tani" onchange="field('${r.rid}','peserta',this.value)"></div>
           <div class="row2-head">
             <span>Hasil Kegiatan</span>
