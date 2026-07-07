@@ -363,13 +363,69 @@ let state={id:{},sig:{koord:null,penyuluh:null},rows:[]};
 let pendingFoto=null; // rid
 let pendingSig=null;  // 'koord'|'penyuluh'
 
-/* ---------- persistence ---------- */
+/* ---------- IndexedDB (photos & signatures; localStorage's ~5MB quota fills up fast with images) ---------- */
+const IDB_NAME='laporan_diseminasi_images',IDB_STORE='images';
+let idbPromise=null;
+function idbOpen(){
+  if(idbPromise)return idbPromise;
+  idbPromise=new Promise((res,rej)=>{
+    try{
+      if(!window.indexedDB){rej(new Error('no idb'));return;}
+      const req=indexedDB.open(IDB_NAME,1);
+      req.onupgradeneeded=()=>{req.result.createObjectStore(IDB_STORE);};
+      req.onsuccess=()=>res(req.result);
+      req.onerror=()=>rej(req.error);
+    }catch(e){rej(e);}
+  });
+  return idbPromise;
+}
+function idbSet(key,val){
+  return idbOpen().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction(IDB_STORE,'readwrite');
+    tx.objectStore(IDB_STORE).put(val,key);
+    tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);
+  })).catch(()=>{});
+}
+function idbDel(key){
+  return idbOpen().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction(IDB_STORE,'readwrite');
+    tx.objectStore(IDB_STORE).delete(key);
+    tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);
+  })).catch(()=>{});
+}
+function idbGet(key){
+  return idbOpen().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction(IDB_STORE,'readonly');
+    const rq=tx.objectStore(IDB_STORE).get(key);
+    rq.onsuccess=()=>res(rq.result||null);
+    rq.onerror=()=>rej(rq.error);
+  })).catch(()=>null);
+}
+function idbClear(){
+  return idbOpen().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction(IDB_STORE,'readwrite');
+    tx.objectStore(IDB_STORE).clear();
+    tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);
+  })).catch(()=>{});
+}
+
+/* ---------- persistence ----------
+   Photos/signatures are kept as data URLs in memory (state.rows[i].foto,
+   state.sig.*) for rendering & export, but only a boolean "has an image"
+   flag is written to localStorage -- the actual image bytes live in
+   IndexedDB instead, since localStorage's small quota fills up after just
+   a handful of photos. */
 function val(id){const e=document.getElementById(id);return e?e.value:'';}
 function setVal(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
 function save(){
   state.id={};ID_FIELDS.forEach(k=>state.id[k]=val(k));
-  try{localStorage.setItem(KEY,JSON.stringify(state));flashSave();}
-  catch(e){toast('Penyimpanan penuh (gambar terlalu besar)',true);}
+  const slim={
+    id:state.id,
+    sig:{koord:!!state.sig.koord,penyuluh:!!state.sig.penyuluh},
+    rows:state.rows.map(r=>Object.assign({},r,{foto:!!r.foto}))
+  };
+  try{localStorage.setItem(KEY,JSON.stringify(slim));flashSave();}
+  catch(e){toast('Penyimpanan penuh',true);}
 }
 function load(){
   let raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
@@ -379,7 +435,46 @@ function load(){
   if(!Array.isArray(state.rows))state.rows=[];
   const haveAny=Object.keys(state.id).length;
   ID_FIELDS.forEach(k=>setVal(k,haveAny?(state.id[k]??''):DEFAULTS[k]));
+
+  // migrate any legacy full-size images still embedded from before the
+  // IndexedDB switch: push them into IndexedDB, then resave the slim form
+  let needsResave=false;
+  ['koord','penyuluh'].forEach(k=>{
+    if(typeof state.sig[k]==='string'&&state.sig[k].startsWith('data:')){
+      idbSet('sig:'+k,state.sig[k]);needsResave=true;
+    }
+  });
+  state.rows.forEach(r=>{
+    if(typeof r.foto==='string'&&r.foto.startsWith('data:')){
+      idbSet('foto:'+r.rid,r.foto);needsResave=true;
+    }
+  });
+
+  // flags (or legacy strings) -> booleans for the in-memory render, then
+  // hydrate the real images from IndexedDB in the background
+  const needSigKoord=!!state.sig.koord,needSigPenyuluh=!!state.sig.penyuluh;
+  state.sig.koord=null;state.sig.penyuluh=null;
+  const needFotoRids=state.rows.filter(r=>!!r.foto).map(r=>r.rid);
+  state.rows.forEach(r=>{r.foto=null;});
   render();renderSig();
+
+  Promise.all([
+    needSigKoord?idbGet('sig:koord'):Promise.resolve(null),
+    needSigPenyuluh?idbGet('sig:penyuluh'):Promise.resolve(null),
+    ...needFotoRids.map(rid=>idbGet('foto:'+rid))
+  ]).then(results=>{
+    const[koordImg,penyuluhImg,...fotos]=results;
+    if(koordImg)state.sig.koord=koordImg;
+    if(penyuluhImg)state.sig.penyuluh=penyuluhImg;
+    needFotoRids.forEach((rid,i)=>{
+      const r=state.rows.find(x=>x.rid===rid);
+      if(r&&fotos[i])r.foto=fotos[i];
+    });
+    render();renderSig();
+    // resave now that images are restored, so a legacy inline-image record
+    // gets rewritten in the slim (flag-only) form with correct flags
+    if(needsResave)save();
+  });
 }
 let saveTimer=null;
 function flashSave(){
@@ -395,8 +490,12 @@ function addRow(){
   state.rows.push(r);render();save();
   return r;
 }
-function delRow(rid){state.rows=state.rows.filter(r=>r.rid!==rid);render();save();}
-function clearRows(){if(state.rows.length&&!confirm('Kosongkan seluruh daftar kegiatan?'))return;state.rows=[];render();save();}
+function delRow(rid){state.rows=state.rows.filter(r=>r.rid!==rid);render();save();idbDel('foto:'+rid);}
+function clearRows(){
+  if(state.rows.length&&!confirm('Kosongkan seluruh daftar kegiatan?'))return;
+  state.rows.forEach(r=>idbDel('foto:'+r.rid));
+  state.rows=[];render();save();
+}
 function field(rid,k,v){const r=state.rows.find(x=>x.rid===rid);if(r){r[k]=v;save();}}
 
 /* ---------- auto-suggest Masalah & Solusi (berdasarkan tugas pendampingan penyuluh) ---------- */
@@ -649,22 +748,24 @@ function renderSig(){
   });
 }
 function pickSig(k){pendingSig=k;document.getElementById('sigInput').click();}
-function removeSig(k){state.sig[k]=null;renderSig();save();}
+function removeSig(k){state.sig[k]=null;renderSig();save();idbDel('sig:'+k);}
 document.getElementById('sigInput').addEventListener('change',function(e){
   const f=e.target.files[0];if(!f||!pendingSig)return;
+  const k=pendingSig;
   resizeImage(f,900,500,0.92).then(dataUrl=>{
-    state.sig[pendingSig]=dataUrl;renderSig();save();pendingSig=null;this.value='';
+    state.sig[k]=dataUrl;renderSig();save();idbSet('sig:'+k,dataUrl);pendingSig=null;this.value='';
   }).catch(()=>{toast('Gagal memuat gambar',true);this.value='';});
 });
 
 /* ---------- foto per kegiatan ---------- */
 function pickFoto(rid){pendingFoto=rid;document.getElementById('fotoInput').click();}
-function removeFoto(rid){const r=state.rows.find(x=>x.rid===rid);if(r){r.foto=null;render();save();}}
+function removeFoto(rid){const r=state.rows.find(x=>x.rid===rid);if(r){r.foto=null;render();save();idbDel('foto:'+rid);}}
 document.getElementById('fotoInput').addEventListener('change',function(e){
   const f=e.target.files[0];if(!f||!pendingFoto)return;
+  const rid=pendingFoto;
   resizeImage(f,1600,2000,0.9).then(dataUrl=>{
-    const r=state.rows.find(x=>x.rid===pendingFoto);
-    if(r){r.foto=dataUrl;render();save();}
+    const r=state.rows.find(x=>x.rid===rid);
+    if(r){r.foto=dataUrl;render();save();idbSet('foto:'+rid,dataUrl);}
     pendingFoto=null;this.value='';
   }).catch(()=>{toast('Gagal memuat gambar',true);this.value='';});
 });
@@ -927,7 +1028,7 @@ function resetAll(){
   if(!confirm('Kosongkan SEMUA isi data (identitas, pengesahan &amp; seluruh kegiatan)? Tindakan ini tidak bisa dibatalkan.'))return;
   state={id:{},sig:{koord:null,penyuluh:null},rows:[]};
   ID_FIELDS.forEach(k=>setVal(k,''));
-  render();renderSig();save();
+  render();renderSig();save();idbClear();
 }
 function toggleTheme(){
   document.body.classList.toggle('dark');
