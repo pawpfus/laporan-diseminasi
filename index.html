@@ -525,7 +525,7 @@ const MATERI_OPTIONS=[
   'Penggunaan Benih Unggul Bersertifikat',
   'Pengelolaan Air Irigasi',
   'Penanganan Pascapanen Padi',
-  'Pemasaran Hasil Pertanian melalui Kelembagaan Tani',
+  'Pemasaran Hasil Pertanian',
   'Penguatan Kelembagaan Kelompok Tani',
   'Pengoperasian dan Pemeliharaan Alat Mesin Pertanian (Alsintan)',
   'Pemanfaatan Kalender Tanam Terpadu (KATAM)',
@@ -561,7 +561,11 @@ function applyMateri(i){
   const r=state.rows.find(x=>x.rid===materiPickerRid);
   if(!r)return;
   r.materi=MATERI_OPTIONS[i]||'';
+  const groups=matchSuggestGroups(r.materi);
+  const opt=groups[0]&&groups[0].options[0];
+  if(opt){r.masalah=opt.masalah;r.solusi=opt.solusi;}
   save();render();closeMateriPicker();
+  toast(opt?'Materi dipilih, Masalah & Solusi otomatis terisi':'Materi diterapkan');
 }
 
 function render(){
