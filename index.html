@@ -413,43 +413,64 @@ function field(rid,k,v){const r=state.rows.find(x=>x.rid===rid);if(r){r[k]=v;sav
 const SUGGEST_BANK=[
   {label:'Pemupukan / Pupuk Berimbang',keywords:['pupuk','pemupukan','npk','urea','kompos','organik'],options:[
     {masalah:'Sebagian petani masih menggunakan pupuk secara berlebihan dan tidak sesuai dosis anjuran sehingga biaya produksi tinggi dan efisiensi pemupukan rendah.',solusi:'Dilakukan pendampingan penyusunan dosis pemupukan berimbang berdasarkan rekomendasi/uji tanah serta anjuran 5 tepat (jenis, dosis, waktu, cara, dan sasaran).'},
-    {masalah:'Keterbatasan akses pupuk bersubsidi menyebabkan sebagian petani kesulitan memenuhi kebutuhan pupuk pada musim tanam.',solusi:'Penyuluh memfasilitasi pendataan RDKK dan mendampingi petani dalam pengurusan Kartu Tani agar penyaluran pupuk bersubsidi tepat sasaran.'}
+    {masalah:'Keterbatasan akses pupuk bersubsidi menyebabkan sebagian petani kesulitan memenuhi kebutuhan pupuk pada musim tanam.',solusi:'Penyuluh memfasilitasi pendataan RDKK dan mendampingi petani dalam pengurusan Kartu Tani agar penyaluran pupuk bersubsidi tepat sasaran.'},
+    {masalah:'Pengetahuan petani mengenai pemanfaatan pupuk organik/kompos sebagai pendamping pupuk anorganik masih terbatas.',solusi:'Penyuluh memberikan demonstrasi pembuatan dan aplikasi pupuk organik/kompos untuk memperbaiki struktur dan kesuburan tanah secara berkelanjutan.'}
   ]},
   {label:'Pengendalian Hama & Penyakit (OPT/PHT)',keywords:['hama','opt','penyakit','wereng','tikus','pestisida'],options:[
     {masalah:'Serangan organisme pengganggu tumbuhan (OPT) meningkat akibat keterlambatan deteksi dini di lapangan.',solusi:'Dilakukan pendampingan pengamatan OPT secara berkala dan penerapan Pengendalian Hama Terpadu (PHT) sesuai ambang ekonomi.'},
-    {masalah:'Petani cenderung menggunakan pestisida kimia secara berlebihan tanpa memperhatikan dosis dan waktu aplikasi yang tepat.',solusi:'Diberikan penyuluhan penggunaan pestisida sesuai prinsip 6 tepat dan pemanfaatan agens hayati sebagai alternatif ramah lingkungan.'}
+    {masalah:'Petani cenderung menggunakan pestisida kimia secara berlebihan tanpa memperhatikan dosis dan waktu aplikasi yang tepat.',solusi:'Diberikan penyuluhan penggunaan pestisida sesuai prinsip 6 tepat dan pemanfaatan agens hayati sebagai alternatif ramah lingkungan.'},
+    {masalah:'Petani belum terbiasa melakukan pengamatan rutin (monitoring) pada pertanaman sehingga serangan OPT baru diketahui setelah meluas.',solusi:'Penyuluh mendampingi pembentukan regu pengamat hama (RPH) tingkat kelompok tani untuk pengamatan mingguan secara terjadwal.'}
   ]},
   {label:'Benih / Bibit Unggul',keywords:['benih','bibit','varietas'],options:[
-    {masalah:'Sebagian petani masih menggunakan benih hasil panen sendiri secara turun-temurun sehingga produktivitas kurang optimal.',solusi:'Penyuluh mendorong penggunaan benih unggul bersertifikat sesuai agroekosistem setempat serta mendampingi penangkaran benih di tingkat kelompok tani.'}
+    {masalah:'Sebagian petani masih menggunakan benih hasil panen sendiri secara turun-temurun sehingga produktivitas kurang optimal.',solusi:'Penyuluh mendorong penggunaan benih unggul bersertifikat sesuai agroekosistem setempat serta mendampingi penangkaran benih di tingkat kelompok tani.'},
+    {masalah:'Ketersediaan benih unggul bersertifikat di tingkat penangkar/kios masih terbatas menjelang musim tanam.',solusi:'Penyuluh memfasilitasi koordinasi dengan penangkar benih dan dinas terkait untuk memastikan ketersediaan benih unggul tepat waktu.'},
+    {masalah:'Sebagian petani ragu beralih ke varietas unggul baru karena belum familiar dengan karakteristik dan cara budidayanya.',solusi:'Dilakukan demonstrasi plot (demplot) varietas unggul baru agar petani dapat melihat langsung keunggulan hasil sebelum mengadopsi secara luas.'}
   ]},
   {label:'Irigasi / Pengairan',keywords:['irigasi','pengairan','drainase'],options:[
-    {masalah:'Distribusi air irigasi belum merata sehingga sebagian lahan mengalami kekurangan air pada musim kemarau.',solusi:'Dilakukan pendampingan penyusunan jadwal giliran air (golongan air) bersama P3A/GP3A serta gerakan perbaikan saluran irigasi tersier.'}
+    {masalah:'Distribusi air irigasi belum merata sehingga sebagian lahan mengalami kekurangan air pada musim kemarau.',solusi:'Dilakukan pendampingan penyusunan jadwal giliran air (golongan air) bersama P3A/GP3A serta gerakan perbaikan saluran irigasi tersier.'},
+    {masalah:'Kondisi saluran irigasi tersier yang rusak/tersumbat sedimen menyebabkan aliran air ke lahan menjadi tidak lancar.',solusi:'Penyuluh menggerakkan gotong royong perbaikan dan normalisasi saluran irigasi tersier bersama kelompok tani dan P3A.'},
+    {masalah:'Penggunaan air irigasi oleh petani belum efisien sehingga sebagian lahan di hilir kekurangan pasokan air.',solusi:'Diberikan penyuluhan tentang teknik irigasi hemat air (seperti berselang/intermitten) agar distribusi air lebih merata ke seluruh petak lahan.'}
   ]},
   {label:'Pascapanen & Pengolahan Hasil',keywords:['pascapanen','pasca panen','pengolahan','olahan'],options:[
-    {masalah:'Penanganan pascapanen yang belum sesuai standar menyebabkan tingginya susut hasil (losses) dan menurunkan mutu produk.',solusi:'Penyuluh mendampingi penerapan teknologi pascapanen sederhana (pengeringan, sortasi, dan pengemasan) untuk menekan susut hasil dan menjaga mutu.'}
+    {masalah:'Penanganan pascapanen yang belum sesuai standar menyebabkan tingginya susut hasil (losses) dan menurunkan mutu produk.',solusi:'Penyuluh mendampingi penerapan teknologi pascapanen sederhana (pengeringan, sortasi, dan pengemasan) untuk menekan susut hasil dan menjaga mutu.'},
+    {masalah:'Keterbatasan alat pengering dan gudang penyimpanan menyebabkan hasil panen rentan rusak/berjamur pada musim hujan.',solusi:'Penyuluh mendampingi pemanfaatan alat pengering (dryer) dan penerapan sistem penyimpanan yang baik untuk menjaga mutu gabah/hasil panen.'},
+    {masalah:'Nilai tambah hasil panen masih rendah karena sebagian besar dijual dalam bentuk bahan mentah tanpa pengolahan.',solusi:'Penyuluh mendorong pengembangan pengolahan hasil pertanian sederhana di tingkat kelompok tani untuk meningkatkan nilai jual produk.'}
   ]},
   {label:'Pemasaran Hasil Pertanian',keywords:['pemasaran','jual','harga jual','pasar'],options:[
-    {masalah:'Petani menghadapi fluktuasi harga jual dan lemahnya posisi tawar karena pola pemasaran yang masih bersifat individual.',solusi:'Dilakukan pendampingan penguatan kelembagaan pemasaran melalui koperasi/kelompok tani agar posisi tawar petani meningkat dan akses pasar lebih luas.'}
+    {masalah:'Petani menghadapi fluktuasi harga jual dan lemahnya posisi tawar karena pola pemasaran yang masih bersifat individual.',solusi:'Dilakukan pendampingan penguatan kelembagaan pemasaran melalui koperasi/kelompok tani agar posisi tawar petani meningkat dan akses pasar lebih luas.'},
+    {masalah:'Petani kesulitan mengakses informasi harga pasar terkini sehingga rentan dipermainkan tengkulak.',solusi:'Penyuluh memfasilitasi akses informasi harga pasar melalui aplikasi/panel harga serta mendorong kemitraan langsung dengan off-taker/pembeli.'},
+    {masalah:'Produk hasil pertanian belum memiliki standar mutu dan kemasan yang menarik sehingga daya saing di pasar masih rendah.',solusi:'Dilakukan pendampingan sortasi, standarisasi mutu, dan pengemasan produk agar lebih kompetitif dan bernilai jual tinggi.'}
   ]},
   {label:'Kelembagaan Kelompok Tani',keywords:['kelompok tani','poktan','gapoktan','kelembagaan'],options:[
-    {masalah:'Fungsi kelembagaan kelompok tani belum berjalan optimal, terlihat dari rendahnya frekuensi pertemuan dan administrasi kelompok.',solusi:'Penyuluh mendampingi penguatan kelas kemampuan kelompok tani melalui pembinaan administrasi, perencanaan usaha tani, dan pertemuan rutin kelompok.'}
+    {masalah:'Fungsi kelembagaan kelompok tani belum berjalan optimal, terlihat dari rendahnya frekuensi pertemuan dan administrasi kelompok.',solusi:'Penyuluh mendampingi penguatan kelas kemampuan kelompok tani melalui pembinaan administrasi, perencanaan usaha tani, dan pertemuan rutin kelompok.'},
+    {masalah:'Regenerasi pengurus dan anggota kelompok tani berjalan lambat karena minimnya minat generasi muda terhadap pertanian.',solusi:'Penyuluh melakukan pendekatan dan pembinaan khusus kepada petani milenial untuk mendorong regenerasi kepengurusan kelompok tani.'},
+    {masalah:'Kelompok tani belum memiliki Rencana Definitif Kelompok (RDK) dan Rencana Definitif Kebutuhan Kelompok (RDKK) yang tersusun dengan baik.',solusi:'Penyuluh mendampingi penyusunan RDK/RDKK secara partisipatif agar perencanaan usaha tani kelompok lebih terarah.'}
   ]},
   {label:'Alsintan (Alat Mesin Pertanian)',keywords:['alsintan','traktor','mesin tanam','combine'],options:[
-    {masalah:'Pemanfaatan alat dan mesin pertanian (alsintan) bantuan pemerintah belum optimal karena keterbatasan keterampilan operator.',solusi:'Dilakukan pelatihan dan pendampingan pengoperasian serta pemeliharaan alsintan agar dimanfaatkan secara optimal dan berkelanjutan oleh kelompok tani.'}
+    {masalah:'Pemanfaatan alat dan mesin pertanian (alsintan) bantuan pemerintah belum optimal karena keterbatasan keterampilan operator.',solusi:'Dilakukan pelatihan dan pendampingan pengoperasian serta pemeliharaan alsintan agar dimanfaatkan secara optimal dan berkelanjutan oleh kelompok tani.'},
+    {masalah:'Belum ada jadwal pemakaian dan pemeliharaan alsintan bantuan secara bergilir sehingga rawan terjadi konflik penggunaan antaranggota.',solusi:'Penyuluh mendampingi penyusunan jadwal pemakaian dan pembentukan brigade/UPJA alsintan agar pemanfaatan lebih tertib dan merata.'},
+    {masalah:'Minimnya suku cadang dan bengkel alsintan di wilayah setempat menghambat perbaikan saat alat mengalami kerusakan.',solusi:'Penyuluh menjembatani kelompok tani dengan penyedia suku cadang/bengkel mitra agar perbaikan alsintan dapat dilakukan lebih cepat.'}
   ]},
   {label:'Perubahan Iklim / Kalender Tanam',keywords:['iklim','kalender tanam','katam','musim'],options:[
-    {masalah:'Pergeseran pola musim akibat perubahan iklim menyebabkan petani kesulitan menentukan waktu tanam yang tepat.',solusi:'Penyuluh mendampingi pemanfaatan informasi Kalender Tanam Terpadu (KATAM) untuk menyesuaikan waktu dan pola tanam.'}
+    {masalah:'Pergeseran pola musim akibat perubahan iklim menyebabkan petani kesulitan menentukan waktu tanam yang tepat.',solusi:'Penyuluh mendampingi pemanfaatan informasi Kalender Tanam Terpadu (KATAM) untuk menyesuaikan waktu dan pola tanam.'},
+    {masalah:'Kejadian cuaca ekstrem (banjir/kekeringan) yang semakin sering menyebabkan risiko gagal panen meningkat.',solusi:'Penyuluh mendampingi penerapan pola tanam adaptif serta sosialisasi Asuransi Usaha Tani Padi (AUTP) untuk mitigasi risiko gagal panen.'},
+    {masalah:'Informasi prakiraan musim dari BMKG/KATAM belum sepenuhnya sampai dan dipahami oleh petani di lapangan.',solusi:'Penyuluh secara rutin menyampaikan dan menerjemahkan informasi prakiraan musim ke bahasa praktis yang mudah diterapkan petani.'}
   ]},
   {label:'Survei / Pendataan (KSA, Ubinan)',keywords:['ksa','ubinan','survei','luas panen','statistik'],options:[
-    {masalah:'Petugas/petani sampel belum sepenuhnya memahami mekanisme pengukuran pada kegiatan survei sehingga berpotensi memengaruhi keakuratan data.',solusi:'Penyuluh mendampingi pelaksanaan survei (KSA/ubinan) mulai dari penentuan titik sampel hingga pengukuran, agar data yang dihasilkan akurat dan tepat waktu.'}
+    {masalah:'Petugas/petani sampel belum sepenuhnya memahami mekanisme pengukuran pada kegiatan survei sehingga berpotensi memengaruhi keakuratan data.',solusi:'Penyuluh mendampingi pelaksanaan survei (KSA/ubinan) mulai dari penentuan titik sampel hingga pengukuran, agar data yang dihasilkan akurat dan tepat waktu.'},
+    {masalah:'Koordinasi jadwal pengukuran/ubinan dengan petani sampel kerap berbenturan dengan aktivitas panen sehingga waktu pelaksanaan mundur.',solusi:'Penyuluh melakukan koordinasi dan penjadwalan lebih awal bersama petugas dan petani sampel agar pelaksanaan survei tepat waktu.'},
+    {masalah:'Sebagian petani sampel enggan memberikan data lahan secara terbuka karena khawatir berkaitan dengan pajak atau bantuan.',solusi:'Penyuluh memberikan penjelasan tujuan dan manfaat survei kepada petani sampel agar bersedia memberikan data secara akurat dan terbuka.'}
   ]},
   {label:'Pekarangan Pangan Lestari (P2L)',keywords:['pekarangan','p2l','diversifikasi pangan'],options:[
-    {masalah:'Pemanfaatan lahan pekarangan untuk mendukung ketahanan pangan keluarga belum optimal.',solusi:'Penyuluh mendampingi pemanfaatan pekarangan melalui program Pekarangan Pangan Lestari (P2L) dengan budidaya sayuran dan pangan lokal.'}
+    {masalah:'Pemanfaatan lahan pekarangan untuk mendukung ketahanan pangan keluarga belum optimal.',solusi:'Penyuluh mendampingi pemanfaatan pekarangan melalui program Pekarangan Pangan Lestari (P2L) dengan budidaya sayuran dan pangan lokal.'},
+    {masalah:'Minat rumah tangga tani dalam mengelola pekarangan masih rendah karena dianggap tidak memberikan nilai ekonomi langsung.',solusi:'Penyuluh melakukan pendampingan dan motivasi melalui contoh keberhasilan (best practice) pemanfaatan pekarangan yang memberi nilai ekonomi/konsumsi keluarga.'},
+    {masalah:'Keterbatasan bibit/benih tanaman pekarangan dan sarana budidaya sederhana menghambat pengembangan P2L di tingkat rumah tangga.',solusi:'Penyuluh memfasilitasi penyediaan bibit dan sarana budidaya sederhana (polybag, pupuk organik) untuk mendukung pengembangan P2L.'}
   ]}
 ];
 const SUGGEST_GENERIC={label:'Umum',options:[
   {masalah:'Tingkat pemahaman dan penerapan peserta terhadap materi yang disampaikan masih perlu ditingkatkan.',solusi:'Dilakukan pendampingan dan monitoring lanjutan secara berkala agar materi yang disampaikan dapat diterapkan dengan baik oleh peserta.'},
-  {masalah:'Belum seluruh peserta mengikuti kegiatan secara penuh sehingga penyerapan informasi belum merata.',solusi:'Penyuluh melakukan kunjungan lanjutan (revisit) kepada peserta yang belum mengikuti kegiatan secara penuh untuk pemerataan informasi.'}
+  {masalah:'Belum seluruh peserta mengikuti kegiatan secara penuh sehingga penyerapan informasi belum merata.',solusi:'Penyuluh melakukan kunjungan lanjutan (revisit) kepada peserta yang belum mengikuti kegiatan secara penuh untuk pemerataan informasi.'},
+  {masalah:'Sarana dan prasarana pendukung kegiatan diseminasi di lokasi masih terbatas.',solusi:'Penyuluh berkoordinasi dengan pihak terkait untuk melengkapi sarana pendukung serta menyesuaikan metode penyampaian materi dengan kondisi di lapangan.'}
 ]};
 function matchSuggestGroups(materi){
   const t=(materi||'').toLowerCase();
@@ -562,7 +583,8 @@ function applyMateri(i){
   if(!r)return;
   r.materi=MATERI_OPTIONS[i]||'';
   const groups=matchSuggestGroups(r.materi);
-  const opt=groups[0]&&groups[0].options[0];
+  const list=groups[0]&&groups[0].options;
+  const opt=list&&list[Math.floor(Math.random()*list.length)];
   if(opt){r.masalah=opt.masalah;r.solusi=opt.solusi;}
   save();render();closeMateriPicker();
   toast(opt?'Materi dipilih, Masalah & Solusi otomatis terisi':'Materi diterapkan');
