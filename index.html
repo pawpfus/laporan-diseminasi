@@ -353,20 +353,10 @@
 
 <script>
 const DEFAULTS={
-  nama:'MUHAMMAD FACHRURI, S.TP.',
-  nip:'19940702 202012 1 002',
-  pangkat:'Penata Muda Tingkat I, III/b',
-  jabatan:'Penyuluh Pertanian Ahli Pertama',
-  unit:'BPP Pitu Riawa',
-  kecamatan:'Pitu Riawa',
-  kabupaten:'Sidenreng Rappang',
-  provinsi:'Sulawesi Selatan',
   dasar1:'Programa Penyuluhan Pertanian 2026',
-  dasar2:'Rencana Kerja Penyuluh Pertanian Tahun 2026',
-  koordNama:'HARYANA HATTA, SP., M.P.',
-  koordNip:'19870220 202012 2 003'
+  dasar2:'Rencana Kerja Penyuluh Pertanian Tahun 2026'
 };
-const ID_FIELDS=Object.keys(DEFAULTS);
+const ID_FIELDS=['nama','nip','pangkat','jabatan','unit','kecamatan','kabupaten','provinsi','dasar1','dasar2','koordNama','koordNip'];
 const METODE=['Kunjungan','Diskusi','Pertemuan','Penyuluhan/Ceramah','Demonstrasi','Sosialisasi','Lainnya'];
 const KEY='laporan_diseminasi_v1';
 let state={id:{},sig:{koord:null,penyuluh:null},rows:[]};
