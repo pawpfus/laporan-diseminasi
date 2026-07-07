@@ -635,8 +635,8 @@ async function exportWord(){
     const numHead=(ref,label,gap)=>p([txt(label)],{numbering:{reference:ref,level:0},spacing:gap?{before:GAP}:undefined});
     /* numbered "label : value" line, aligned via a single tab stop (no table); gap=true adds a blank line before it */
     const numKV=(ref,label,value,gap)=>p([txt(label),txt('\t:  '+(value||''))],{numbering:{reference:ref,level:0},tabStops:[{type:TabStopType.LEFT,position:TAB1}],spacing:gap?{before:GAP}:undefined});
-    /* continuation line, indented to the value column, no number/label; gap=true adds a blank line before it */
-    const cont=(value,gap)=>p([txt(value||'')],{indent:{left:TAB1},spacing:gap?{before:GAP}:undefined});
+    /* continuation line, reaching the value column via the same tab stop as labeled lines (no plain indent, so it can't drift out of alignment); gap=true adds a blank line before it */
+    const cont=(value,gap)=>p([txt(''),txt('\t'+(value||''))],{tabStops:[{type:TabStopType.LEFT,position:TAB1}],spacing:gap?{before:GAP}:undefined});
     /* two values on one line separated by a tab (used for the signature block) */
     const twoCol=(runsLeft,runsRight)=>p([...runsLeft,txt('\t'),...runsRight],{tabStops:[{type:TabStopType.LEFT,position:TAB2}]});
 
