@@ -776,7 +776,7 @@ function removeSig(k){state.sig[k]=null;renderSig();save();idbDel('sig:'+k);}
 document.getElementById('sigInput').addEventListener('change',function(e){
   const f=e.target.files[0];if(!f||!pendingSig)return;
   const k=pendingSig;
-  resizeImage(f,900,500,0.92).then(dataUrl=>{
+  resizeImage(f,900,500,0.92,'image/png').then(dataUrl=>{
     state.sig[k]=dataUrl;renderSig();save();idbSet('sig:'+k,dataUrl);pendingSig=null;this.value='';
   }).catch(()=>{toast('Gagal memuat gambar',true);this.value='';});
 });
@@ -793,7 +793,7 @@ document.getElementById('fotoInput').addEventListener('change',function(e){
     pendingFoto=null;this.value='';
   }).catch(()=>{toast('Gagal memuat gambar',true);this.value='';});
 });
-function resizeImage(file,maxW,maxH,q){
+function resizeImage(file,maxW,maxH,q,type){
   return new Promise((res,rej)=>{
     const img=new Image();const url=URL.createObjectURL(file);
     img.onload=()=>{
@@ -801,7 +801,10 @@ function resizeImage(file,maxW,maxH,q){
       w=Math.round(w*ratio);h=Math.round(h*ratio);
       const c=document.createElement('canvas');c.width=w;c.height=h;
       c.getContext('2d').drawImage(img,0,0,w,h);
-      URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',q));
+      URL.revokeObjectURL(url);
+      // PNG preserves transparency (needed for signatures); JPEG has no
+      // alpha channel and would bake transparent areas in as solid black
+      res(c.toDataURL(type||'image/jpeg',type==='image/png'?undefined:q));
     };
     img.onerror=()=>{URL.revokeObjectURL(url);rej();};img.src=url;
   });
@@ -863,7 +866,7 @@ body{font-family:'Times New Roman',Times,serif;color:#000}
 .sig-row2{display:flex;font-size:12.5px;margin-top:2px;color:#000}
 .sig-date-row{margin-top:34px}
 .sig-col{width:50%;vertical-align:top}
-.sig-img-row{margin-top:40px}
+.sig-img-row{margin-top:18px}
 .sig-img{height:70px;display:flex;align-items:center}
 .sig-img img{max-height:65px;max-width:180px;object-fit:contain}
 .sig-name{font-weight:700;margin-top:2px}
@@ -1095,7 +1098,7 @@ async function exportWord(){
       let koordImg=null,penyuluhImg=null;
       if(state.sig.koord){try{koordImg=await imgRunFromDataUrl(state.sig.koord,140,70);}catch(e){}}
       if(state.sig.penyuluh){try{penyuluhImg=await imgRunFromDataUrl(state.sig.penyuluh,140,70);}catch(e){}}
-      kids.push(p([koordImg||txt(''),txt('\t'),penyuluhImg||txt('')],{tabStops:[{type:TabStopType.LEFT,position:TAB2}],spacing:{before:680}}));
+      kids.push(p([koordImg||txt(''),txt('\t'),penyuluhImg||txt('')],{tabStops:[{type:TabStopType.LEFT,position:TAB2}],spacing:{before:300}}));
 
       kids.push(twoCol([txt(id.koordNama||'',{bold:true})],[txt(id.nama||'',{bold:true})]));
       kids.push(twoCol([txt('NIP. '+(id.koordNip||''))],[txt('NIP. '+(id.nip||''))]));
