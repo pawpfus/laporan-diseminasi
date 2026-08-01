@@ -1,4 +1,4 @@
-const CACHE_NAME = 'laporan-diseminasi-v19';
+const CACHE_NAME = 'laporan-diseminasi-v20';
 const ASSETS = [
   './',
   './index.html',
