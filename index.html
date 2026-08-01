@@ -870,7 +870,6 @@ body{font-family:'Times New Roman',Times,serif;color:#000}
 .sig-img{height:70px;display:flex;align-items:center}
 .sig-img img{max-height:65px;max-width:180px;object-fit:contain}
 .sig-name{font-weight:700;margin-top:2px}
-.foot{position:absolute;left:96px;right:42px;bottom:26px;text-align:right;font-size:11px}
 .cover{padding:85px 85px 85px 96px}
 .cov-ln{margin:0}
 .cov-logo{width:148px;height:148px;object-fit:contain}
@@ -951,7 +950,6 @@ function pdfEntryHTML(r,idx){
     <div class="sig-row2 sig-img-row"><div class="sig-col sig-img">${state.sig.koord?`<img src="${state.sig.koord}">`:''}</div><div class="sig-col sig-img">${state.sig.penyuluh?`<img src="${state.sig.penyuluh}">`:''}</div></div>
     <div class="sig-row2"><div class="sig-col sig-name">${esc(id.koordNama||'')}</div><div class="sig-col sig-name">${esc(id.nama||'')}</div></div>
     <div class="sig-row2"><div class="sig-col">NIP. ${esc(id.koordNip||'')}</div><div class="sig-col">NIP. ${esc(id.nip||'')}</div></div>
-    <div class="foot">Laporan Diseminasi · kegiatan ${idx+1}</div>
   </div>`;
 }
 function imagesReady(root){const imgs=[...root.querySelectorAll('img')];return Promise.all(imgs.map(im=>im.complete?Promise.resolve():new Promise(res=>{im.onload=im.onerror=res;})));}
