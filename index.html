@@ -595,6 +595,11 @@ const SUGGEST_BANK=[
     {masalah:'Pemeliharaan ternak sebagian peternak masih bersifat tradisional dengan perkandangan seadanya sehingga pertumbuhan dan kesehatan ternak kurang optimal.',solusi:'Penyuluh mendampingi penerapan tata laksana pemeliharaan dan perkandangan sesuai standar teknis agar produktivitas serta kesehatan ternak meningkat.'},
     {masalah:'Ketersediaan pakan berkualitas terbatas pada musim kemarau sehingga bobot dan produksi ternak menurun.',solusi:'Dilakukan pendampingan pembuatan pakan awetan (silase/hay) serta pemanfaatan limbah pertanian sebagai pakan alternatif yang murah dan tersedia sepanjang tahun.'},
     {masalah:'Pencegahan dan penanganan penyakit ternak belum dilakukan secara rutin sehingga ternak rentan terserang penyakit.',solusi:'Penyuluh berkoordinasi dengan petugas kesehatan hewan untuk pelaksanaan vaksinasi, penerapan biosekuriti, dan pemeriksaan ternak secara berkala.'}
+  ]},
+  {label:'Pertanian Modern (PM AAS)',keywords:['pertanian modern','modernisasi pertanian','pm aas','aas','advanced agriculture','smart farming','pertanian presisi','brigade pangan'],options:[
+    {masalah:'Sebagian petani belum terbiasa mengoperasikan teknologi pertanian modern (alsintan presisi, drone, dan perangkat smart farming) sehingga pemanfaatannya belum optimal.',solusi:'Penyuluh memfasilitasi pelatihan dan pendampingan teknis pengoperasian teknologi pertanian modern bersama Brigade Pangan dan petani milenial di kawasan.'},
+    {masalah:'Pengelolaan usaha tani di kawasan pertanian modern masih bersifat individu sehingga penerapan teknologi belum efisien dalam satu hamparan.',solusi:'Penyuluh mendampingi penataan pengelolaan secara klaster/korporasi petani agar olah tanah, tanam, pemeliharaan, dan panen dilakukan serempak dalam satu hamparan.'},
+    {masalah:'Biaya operasional dan pemeliharaan sarana pertanian modern cukup tinggi sementara kemampuan permodalan kelompok masih terbatas.',solusi:'Penyuluh mendampingi penyusunan analisa usaha tani serta memfasilitasi akses pembiayaan dan skema pemanfaatan alsintan bersama melalui UPJA/Brigade Pangan.'}
   ]}
 ];
 const SUGGEST_GENERIC={label:'Umum',options:[
@@ -684,7 +689,8 @@ const MATERI_OPTIONS=[
   'Pemanfaatan Pekarangan melalui Program Pekarangan Pangan Lestari (P2L)',
   'Pengawalan Bantuan Optimasi Lahan (Oplah) Rawa dan Non Rawa serta CPCL',
   'Penyaluran Bantuan Benih Varietas Unggul',
-  'Pengembangan Usaha Peternakan'
+  'Pengembangan Usaha Peternakan',
+  'Pengawalan Program Pertanian Modern (PM AAS)'
 ];
 let materiPickerRid=null;
 function onMateriOutsideClick(e){const pop=document.getElementById('materiPop');if(pop&&!pop.contains(e.target))closeMateriPicker();}
