@@ -539,6 +539,13 @@ const SUGGEST_BANK=[
     {masalah:'Petani cenderung menggunakan pestisida kimia secara berlebihan tanpa memperhatikan dosis dan waktu aplikasi yang tepat.',solusi:'Diberikan penyuluhan penggunaan pestisida sesuai prinsip 6 tepat dan pemanfaatan agens hayati sebagai alternatif ramah lingkungan.'},
     {masalah:'Petani belum terbiasa melakukan pengamatan rutin (monitoring) pada pertanaman sehingga serangan OPT baru diketahui setelah meluas.',solusi:'Penyuluh mendampingi pembentukan regu pengamat hama (RPH) tingkat kelompok tani untuk pengamatan mingguan secara terjadwal.'}
   ]},
+  /* listed before the generic benih group so a distribution-focused materi
+     auto-fills with these rather than the seed-adoption templates */
+  {label:'Penyaluran Bantuan Benih',keywords:['penyaluran benih','penyaluran varietas','bantuan benih','bantuan varietas','distribusi benih','salur benih'],options:[
+    {masalah:'Data calon penerima bantuan benih belum seluruhnya sesuai kondisi riil di lapangan sehingga berpotensi menghambat proses penyaluran.',solusi:'Penyuluh melakukan verifikasi dan pemutakhiran data CPCL bersama kelompok tani agar penyaluran benih tepat sasaran dan tepat jumlah.'},
+    {masalah:'Jadwal penyaluran bantuan benih tidak selalu sejalan dengan jadwal tanam petani sehingga benih berisiko tersimpan terlalu lama.',solusi:'Penyuluh mengoordinasikan waktu penyaluran dengan jadwal tanam serta mendampingi cara penyimpanan benih yang benar sebelum tanam.'},
+    {masalah:'Sebagian petani penerima belum memahami karakteristik varietas benih bantuan yang diterima sehingga penerapan budidayanya belum sesuai anjuran.',solusi:'Dilakukan sosialisasi deskripsi dan anjuran budidaya varietas yang disalurkan, disertai pendampingan pada awal musim tanam.'}
+  ]},
   {label:'Benih / Bibit Unggul',keywords:['benih','bibit','varietas'],options:[
     {masalah:'Sebagian petani masih menggunakan benih hasil panen sendiri secara turun-temurun sehingga produktivitas kurang optimal.',solusi:'Penyuluh mendorong penggunaan benih unggul bersertifikat sesuai agroekosistem setempat serta mendampingi penangkaran benih di tingkat kelompok tani.'},
     {masalah:'Ketersediaan benih unggul bersertifikat di tingkat penangkar/kios masih terbatas menjelang musim tanam.',solusi:'Penyuluh memfasilitasi koordinasi dengan penangkar benih dan dinas terkait untuk memastikan ketersediaan benih unggul tepat waktu.'},
@@ -583,6 +590,11 @@ const SUGGEST_BANK=[
     {masalah:'Pemanfaatan lahan pekarangan untuk mendukung ketahanan pangan keluarga belum optimal.',solusi:'Penyuluh mendampingi pemanfaatan pekarangan melalui program Pekarangan Pangan Lestari (P2L) dengan budidaya sayuran dan pangan lokal.'},
     {masalah:'Minat rumah tangga tani dalam mengelola pekarangan masih rendah karena dianggap tidak memberikan nilai ekonomi langsung.',solusi:'Penyuluh melakukan pendampingan dan motivasi melalui contoh keberhasilan (best practice) pemanfaatan pekarangan yang memberi nilai ekonomi/konsumsi keluarga.'},
     {masalah:'Keterbatasan bibit/benih tanaman pekarangan dan sarana budidaya sederhana menghambat pengembangan P2L di tingkat rumah tangga.',solusi:'Penyuluh memfasilitasi penyediaan bibit dan sarana budidaya sederhana (polybag, pupuk organik) untuk mendukung pengembangan P2L.'}
+  ]},
+  {label:'Peternakan',keywords:['ternak','peternakan','sapi','kambing','ayam','unggas','itik','kandang','pakan ternak','inseminasi'],options:[
+    {masalah:'Pemeliharaan ternak sebagian peternak masih bersifat tradisional dengan perkandangan seadanya sehingga pertumbuhan dan kesehatan ternak kurang optimal.',solusi:'Penyuluh mendampingi penerapan tata laksana pemeliharaan dan perkandangan sesuai standar teknis agar produktivitas serta kesehatan ternak meningkat.'},
+    {masalah:'Ketersediaan pakan berkualitas terbatas pada musim kemarau sehingga bobot dan produksi ternak menurun.',solusi:'Dilakukan pendampingan pembuatan pakan awetan (silase/hay) serta pemanfaatan limbah pertanian sebagai pakan alternatif yang murah dan tersedia sepanjang tahun.'},
+    {masalah:'Pencegahan dan penanganan penyakit ternak belum dilakukan secara rutin sehingga ternak rentan terserang penyakit.',solusi:'Penyuluh berkoordinasi dengan petugas kesehatan hewan untuk pelaksanaan vaksinasi, penerapan biosekuriti, dan pemeriksaan ternak secara berkala.'}
   ]}
 ];
 const SUGGEST_GENERIC={label:'Umum',options:[
@@ -670,7 +682,9 @@ const MATERI_OPTIONS=[
   'Pemanfaatan Kalender Tanam Terpadu (KATAM)',
   'Pendampingan Survei Kerangka Sampel Area (KSA)',
   'Pemanfaatan Pekarangan melalui Program Pekarangan Pangan Lestari (P2L)',
-  'Pengawalan Bantuan Optimasi Lahan (Oplah) Rawa dan Non Rawa serta CPCL'
+  'Pengawalan Bantuan Optimasi Lahan (Oplah) Rawa dan Non Rawa serta CPCL',
+  'Penyaluran Bantuan Benih Varietas Unggul',
+  'Pengembangan Usaha Peternakan'
 ];
 let materiPickerRid=null;
 function onMateriOutsideClick(e){const pop=document.getElementById('materiPop');if(pop&&!pop.contains(e.target))closeMateriPicker();}
